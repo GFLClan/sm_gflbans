@@ -41,5 +41,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: gflbans.${{ steps.vars.outpus.plugin_version }}
+          name: gflbans.${{ steps.vars.outputs.plugin_version }}
           path: ./bundle
