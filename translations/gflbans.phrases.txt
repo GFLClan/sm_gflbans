@@ -1,0 +1,29 @@
+"Phrases"
+{
+    "Minutes"
+    {
+        "#format"   "{1:d}"
+        "en"        "{1} minutes"
+    }
+    "Hours"
+    {
+        "#format"   "{1:d}"
+        "en"        "{1} hours"
+    }
+    "Days"
+    {
+        "#format"   "{1:d}"
+        "en"        "{1} days"
+    }
+    "Weeks"
+    {
+        "#format"   "{1:d}"
+        "en"        "{1} weeks"
+    }
+
+    "You're Banned"
+    {
+        "#format"   "{1:s}"
+        "en"        "You have been banned, visit {1} for more info."
+    }
+}
