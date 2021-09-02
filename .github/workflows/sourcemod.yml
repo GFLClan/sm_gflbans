@@ -1,0 +1,44 @@
+name: Compile & Upload
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        SM_VERSION: ["1.10", "1.11"]
+        
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.SM_VERSION }}
+      - name: Set vars
+        id: vars
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "::set-output name=plugin_version::${{ matrix.SM_VERSION }}.$SHORT_SHA"
+      - name: Compile 
+        run: |
+          mkdir compiled
+          make CC=spcomp64 all
+      - name: Bundle
+        run: |
+          mkdir -p bundle/addons/sourcemod/plugins
+          cp compiled/*.smx bundle/addons/sourcemod/plugins
+          mkdir scripting
+          cp -r src/ scripting/gflbans
+          cp -r test/ scripting/gflbans/test
+          cp -r scripting/ bundle/addons/sourcemod
+          cp -r translations/ bundle/addons/sourcemod
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: gflbans.${{ steps.vars.outpus.plugin_version }}
+          path: ./bundle
