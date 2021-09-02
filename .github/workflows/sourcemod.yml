@@ -15,6 +15,8 @@ jobs:
         
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
         uses: rumblefrog/setup-sp@master
         with:
