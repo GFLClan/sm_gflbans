@@ -1,0 +1,3 @@
+[submodule "sm-ripext"]
+	path = sm-ripext
+	url = https://github.com/ErikMinekus/sm-ripext.git

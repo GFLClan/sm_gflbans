@@ -1,5 +1,5 @@
 CC := ../spcomp64
-INCLUDE := -i ../include -i include
+INCLUDE := -i ../include -i include -i sm-ripext/pawn/scripting/include
 SRCS := globals gflbans commands infractions api utils
 SRC_FILES := $(addprefix src/, $(addsuffix .sp, $(SRCS)))
 DEPS := 
