@@ -19,7 +19,7 @@ tests: test_utils test_infractions
 
 .PHONY: all clean
 
-all: $(COMPILED)
+all: gflbans tests
 
 clean: 
 	rm -f $(COMPILED)

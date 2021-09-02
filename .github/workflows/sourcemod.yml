@@ -26,8 +26,7 @@ jobs:
           echo "::set-output name=plugin_version::${{ matrix.SM_VERSION }}.$SHORT_SHA"
       - name: Compile 
         run: |
-          mkdir compiled
-          make CC=spcomp64 all
+          make CC=spcomp64 gflbans
       - name: Bundle
         run: |
           mkdir -p bundle/addons/sourcemod/plugins
