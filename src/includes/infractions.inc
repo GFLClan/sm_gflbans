@@ -12,7 +12,8 @@ enum InfractionBlock {
     Block_Join,
     Block_Chat,
     Block_Voice,
-    Block_CallAdmin
+    Block_CallAdmin,
+    Block_AdminChat
 }
 
 void GFLBans_ApplyInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration, const char[] reason);

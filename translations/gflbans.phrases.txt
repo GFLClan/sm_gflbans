@@ -20,6 +20,11 @@
         "#format"   "{1:d}"
         "en"        "{1} weeks"
     }
+    "Infraction Usage"
+    {
+        "#format"   "{1:s}"
+        "en"        "Usage: {1} <target> <duration> [reason]"
+    }
 
     "You're Banned"
     {
