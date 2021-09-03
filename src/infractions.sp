@@ -8,6 +8,7 @@
 #include "includes/infractions"
 #include "includes/utils"
 #include "includes/api"
+#include "includes/log"
 
 enum struct PlayerInfractions {
     Handle infraction_timer[Block_None];
@@ -25,33 +26,46 @@ bool GFLBans_CallAdminBanned(int client) {
     }
 }
 
+void GFLBans_ApplyPunishment(int client, InfractionBlock block, int duration) {
+    GFLBans_LogDebug("Applying infraction %d to %N", block, client);
+    
+    // TODO: Notify client
+
+    if (duration > 0) {
+        SetupExpirationTimer(client, block, duration);
+    }
+    if (block == Block_Join) {
+        char website[64];
+        g_cvar_gflbans_website.GetString(website, sizeof(website));
+        KickClient(client, "%t", "You're Banned", website);
+    } else if (block == Block_Chat) {
+        BaseComm_SetClientGag(client, true);
+    } else if (block == Block_Voice) {
+        BaseComm_SetClientMute(client, true);
+    } else if (block == Block_CallAdmin) {
+        player_infractions[client].call_admin_banned = true;
+    }
+}
+
+void GFLBans_RemovePunishment(int client, InfractionBlock block) {    
+    // TODO: Notify client
+    KillExpirationTimer(client, block);
+    if (block == Block_Chat) {
+        BaseComm_SetClientGag(client, false);
+    } else if (block == Block_Voice) {
+        BaseComm_SetClientMute(client, false);
+    } else if (block == Block_CallAdmin) {
+        player_infractions[client].call_admin_banned = false;
+    }
+}
+
 void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks, int duration) {
     if (!GFLBans_ValidClient(client)) {
         return;
     }
 
-    // TODO: Proper logging
-
     for (int c = 0; c < total_blocks; c++) {
-        char infraction_str[32];
-        GFLBans_PunishmentToString(blocks[c], infraction_str, sizeof(infraction_str));
-        PrintToServer("Applying infraction %s to %N", infraction_str, client);
-
-        if (duration > 0) {
-            SetupExpirationTimer(client, blocks[c], duration);
-        }
-        if (blocks[c] == Block_Join) {
-            char website[64];
-            g_cvar_gflbans_website.GetString(website, sizeof(website));
-            KickClient(client, "%t", "You're Banned", website);
-            break;
-        } else if (blocks[c] == Block_Chat) {
-            BaseComm_SetClientGag(client, true);
-        } else if (blocks[c] == Block_Voice) {
-            BaseComm_SetClientMute(client, true);
-        } else if (blocks[c] == Block_CallAdmin) {
-            player_infractions[client].call_admin_banned = true;
-        }
+        GFLBans_ApplyPunishment(client, blocks[c], duration);
     }
 }
 
@@ -61,21 +75,7 @@ void GFLBans_RemovePunishments(int client, const InfractionBlock[] blocks, int t
     }
 
     for (int c = 0; c < total_blocks; c++) {
-        // TODO: Proper logging
-        char infraction_str[32];
-        GFLBans_PunishmentToString(blocks[c], infraction_str, sizeof(infraction_str));
-        PrintToServer("Removing infraction %s to %N", infraction_str, client);
-        
-        KillExpirationTimer(client, blocks[c]);
-        if (blocks[c] == Block_Chat) {
-            BaseComm_SetClientGag(client, false);
-            continue;
-        } else if (blocks[c] == Block_Voice) {
-            BaseComm_SetClientMute(client, false);
-            continue;
-        } else if (blocks[c] == Block_CallAdmin) {
-            player_infractions[client].call_admin_banned = false;
-        }
+        GFLBans_RemovePunishment(client, blocks[c]);
     }
 }
 
@@ -181,6 +181,7 @@ void SetupExpirationTimer(int client, InfractionBlock block, int duration) {
 void KillExpirationTimer(int client, InfractionBlock block) {
     if (player_infractions[client].infraction_timer[block] != INVALID_HANDLE) {
         KillTimer(player_infractions[client].infraction_timer[block], true);
+        player_infractions[client].infraction_timer[block] = INVALID_HANDLE;
     }
 }
 

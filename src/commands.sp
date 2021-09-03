@@ -6,6 +6,7 @@
 #include <sourcemod>
 #include "includes/infractions"
 #include "includes/utils"
+#include "includes/api"
 
 void GFLBans_RegisterCommands() {
     AddCommandListener(CommandListener_Gag, "sm_gag");
@@ -18,6 +19,7 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_unban", CommandUnban, ADMFLAG_UNBAN, "sm_unban <steamid|ip> [reason]", "gflbans");
 
     RegConsoleCmd("sm_calladmin", CommandCallAdmin, "Call an admin to the server");
+    RegAdminCmd("sm_claim", CommandClaimCallAdmin, ADMFLAG_KICK, "Claim a calladmin call");
 }
 
 public Action CommandBan(int client, int args) {
@@ -65,6 +67,14 @@ public Action CommandCallAdmin(int client, int args) {
     char reason[256];
     GetCmdArgString(reason, sizeof(reason));
     GFLBansAPI_CallAdmin(client, reason);
+    return Plugin_Handled;
+}
+
+public Action CommandClaimCallAdmin(int client, int args) {
+    if (!GFLBans_ValidClient(client)) {
+        return Plugin_Handled;
+    }
+    GFLBansAPI_ClaimCallAdmin(client);
     return Plugin_Handled;
 }
 

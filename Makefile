@@ -1,6 +1,6 @@
 CC := ../spcomp64
 INCLUDE := -i ../include -i include -i sm-ripext/pawn/scripting/include
-SRCS := gflbans commands infractions api utils
+SRCS := gflbans commands infractions api log utils
 SRC_FILES := $(addprefix src/, $(addsuffix .sp, $(SRCS)))
 DEPS := 
 CC_FLAGS := 
@@ -13,7 +13,7 @@ test_utils: $(SRC_FILES)
 	$(CC) $(CC_FLAGS) $(TEST_FLAGS) test/gflbans_test_utils.sp src/utils.sp $(INCLUDE) -o compiled/tests/gflbans_test_utils.smx
 
 test_infractions: $(SRC_FILES)
-	$(CC) $(CC_FLAGS) $(TEST_FLAGS) test/init_globals.sp test/gflbans_test_infractions.sp src/infractions.sp test/api_mocks.sp src/utils.sp $(INCLUDE) -o compiled/tests/gflbans_test_infractions.smx
+	$(CC) $(CC_FLAGS) $(TEST_FLAGS) test/init_globals.sp test/gflbans_test_infractions.sp src/infractions.sp src/log.sp test/api_mocks.sp src/utils.sp $(INCLUDE) -o compiled/tests/gflbans_test_infractions.smx
 
 tests: test_utils test_infractions
 

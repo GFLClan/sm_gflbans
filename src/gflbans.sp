@@ -6,10 +6,11 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-
+#include <clientprefs>
 #include "includes/commands"
 #include "includes/globals"
 #include "includes/api"
+#include "includes/log"
 
 public Plugin myinfo = {
     name = "GFLBans",
@@ -21,6 +22,7 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
     GFLBans_RegisterCommands();
+    GFLBans_InitLogging();
     g_cvar_gflbans_website = CreateConVar("gflbans_website", "", "Base URL for GFL Bans instance");
     g_cvar_gflbans_global_bans = CreateConVar("gflbans_global_bans", "1", "Should this server accept global bans");
     g_cvar_gflbans_server_id = CreateConVar("gflbans_server_id", "", "ID for this server in GFL Bans", FCVAR_PROTECTED);
@@ -37,6 +39,15 @@ public void OnPluginStart() {
 
     LoadTranslations("common.phrases");
     LoadTranslations("gflbans.phrases");
+
+    for (int c = 1; c <= MaxClients; c++) {
+        if (IsClientAuthorized(c)) {
+            OnClientAuthorized(c, "");
+        }
+        if (AreClientCookiesCached(c)) {
+            OnClientCookiesCached(c);
+        }
+    }
 }
 
 public void OnMapStart() {
@@ -57,7 +68,31 @@ public void OnConfigsExecuted() {
         g_b_server_locked = true;
     }
 
+    GFLBansLogs_OnConfigsLoaded();
     GFLBansAPI_DoHeartbeat();
+}
+
+public void OnClientAuthorized(int client, const char[] auth) {
+    if (!IsFakeClient(client)) {
+        GFLBansAPI_CheckClient(client);
+    }
+}
+
+public void OnClientPostAdminCheck(int client) {
+    if (AreClientCookiesCached(client)) {
+        OnClientCookiesCached(client);
+    }
+}
+
+public void OnClientDisconnect(int client) {
+    if (!IsFakeClient(client)) {
+        GFLBansLogs_OnClientDisconnected(client);
+    }
+    GFLBans_KillPunishmentTimers(client);
+}
+
+public void OnClientCookiesCached(int client) {
+    GFLBansLogs_OnClientCookiesCached(client);
 }
 
 public void Cvar_HostnameChanged(ConVar cvar, const char[] old_value, const char[] new_value) {
@@ -69,12 +104,6 @@ public void Cvar_PasswordChanged(ConVar cvar, const char[] old_value, const char
         g_b_server_locked = false;
     } else {
         g_b_server_locked = true;
-    }
-}
-
-public void OnClientAuthorized(int client, const char[] auth) {
-    if (!IsFakeClient(client)) {
-        GFLBansAPI_CheckClient(client);
     }
 }
 
