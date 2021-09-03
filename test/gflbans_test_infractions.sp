@@ -24,19 +24,19 @@ public Action Command_TestBan(int client, int args) {
     char buffer[128];
     GetCmdArgString(buffer, sizeof(buffer));
     InfractionBlock blocks[] = {Block_Join};
-    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks));
+    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks), 1);
 }
 
 public Action Command_TestGag(int client, int args) {
     char buffer[128];
     GetCmdArgString(buffer, sizeof(buffer));
     InfractionBlock blocks[] = {Block_Chat};
-    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks));
+    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks), 1);
 }
 
 public Action Command_TestMute(int client, int args) {
     char buffer[128];
     GetCmdArgString(buffer, sizeof(buffer));
     InfractionBlock blocks[] = {Block_Voice};
-    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks));
+    GFLBans_ApplyPunishments(client, blocks, sizeof(blocks), 1);
 }

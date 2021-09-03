@@ -9,10 +9,8 @@
 #include "includes/utils"
 #include "includes/infractions"
 
-Handle heartbeat_timer;
-
 void GFLBansAPI_StartHeartbeatTimer() {
-    heartbeat_timer = CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);
+    CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);
 }
 
 HTTPRequest Start_HTTPRequest(const char[] api_path) {
@@ -181,6 +179,9 @@ public void HTTPCallback_Heartbeat(HTTPResponse response, any _data) {
     int status = view_as<int>(response.Status);
     if (status == 200) {
         JSONArray data = view_as<JSONArray>(response.Data);
+        char buffer[512];
+        data.ToString(buffer, sizeof(buffer));
+        PrintToServer(buffer);
         for (int c = 0; c < data.Length; c++) {
             JSONObject heartbeat_obj = view_as<JSONObject>(data.Get(c));
             JSONObject player = view_as<JSONObject>(heartbeat_obj.Get("player"));
@@ -195,16 +196,36 @@ public void HTTPCallback_Heartbeat(HTTPResponse response, any _data) {
                     JSONObjectKeys keys = check.Keys();
                     
                     char key_buff[32];
-                    InfractionBlock blocks[32], block;
-                    int total_blocks = 0;
+                    bool has_punishments = false;
                     while (keys.ReadKey(key_buff, sizeof(key_buff))) {
-                        if (GFLBans_StringToPunishment(key_buff, block)) {
+                        has_punishments = true;
+                        JSONObject check_item = view_as<JSONObject>(check.Get(key_buff));
+                        int expires;
+                        if (check_item.HasKey("expiration")) {
+                           expires = check_item.GetInt("expiration");
+                        } else {
+                            expires = 0;
+                        }
+                        delete check_item;
+
+                        InfractionBlock block;
+                        InfractionBlock blocks[Block_None];
+                        int total_blocks = 0;
+                        if (GFLBans_StringToPunishment(key_buff, block) && GFLBans_PunishmentExpiresBefore(client, block, expires)) {
                             blocks[total_blocks] = block;
                             total_blocks++;
+                            
+                            InfractionBlock current_block[1];
+                            current_block[0] = block;
+
+                            GFLBans_ApplyPunishments(client, current_block, sizeof(current_block), expires - GetTime());
                         }
+                        GFLBans_ClearOtherPunishments(client, blocks, total_blocks);
                     }
 
-                    GFLBans_ApplyPunishments(client, blocks, total_blocks);
+                    if (!has_punishments) {
+                        GFLBans_ClearPunishments(client);
+                    }
 
                     delete check;
                     delete keys;

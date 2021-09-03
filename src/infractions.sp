@@ -9,15 +9,28 @@
 #include "includes/utils"
 #include "includes/api"
 
-void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks) {
+enum struct PlayerInfractions {
+    Handle infraction_timer[Block_None];
+    int infraction_expires[Block_None];
+}
+
+PlayerInfractions player_infractions[MAXPLAYERS];
+
+void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks, int duration) {
     if (!GFLBans_ValidClient(client)) {
         return;
     }
 
     // TODO: Proper logging
-    PrintToServer("Applying infractions to %N", client);
 
     for (int c = 0; c < total_blocks; c++) {
+        char infraction_str[32];
+        GFLBans_PunishmentToString(blocks[c], infraction_str, sizeof(infraction_str));
+        PrintToServer("Applying infraction %s to %N", infraction_str, client);
+
+        if (duration > 0) {
+            SetupExpirationTimer(client, blocks[c], duration);
+        }
         if (blocks[c] == Block_Join) {
             char website[64];
             g_cvar_gflbans_website.GetString(website, sizeof(website));
@@ -32,7 +45,17 @@ void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int to
 }
 
 void GFLBans_RemovePunishments(int client, const InfractionBlock[] blocks, int total_blocks) {
+    if (!GFLBans_ValidClient(client)) {
+        return;
+    }
+
     for (int c = 0; c < total_blocks; c++) {
+        // TODO: Proper logging
+        char infraction_str[32];
+        GFLBans_PunishmentToString(blocks[c], infraction_str, sizeof(infraction_str));
+        PrintToServer("Removing infraction %s to %N", infraction_str, client);
+        
+        KillExpirationTimer(client, blocks[c]);
         if (blocks[c] == Block_Chat) {
             BaseComm_SetClientGag(client, false);
             continue;
@@ -43,14 +66,45 @@ void GFLBans_RemovePunishments(int client, const InfractionBlock[] blocks, int t
     }
 }
 
-void GFLBans_ClearPunishments(int client) {
-    if (BaseComm_IsClientGagged(client)) {
-        BaseComm_SetClientGag(client, false);
+void GFLBans_ClearOtherPunishments(int client, const InfractionBlock[] blocks, int total_blocks) {
+    InfractionBlock blocks_to_clear[Block_None];
+    int total_blocks_to_clear;
+    int max_blocks = view_as<int>(Block_None);
+    for (int c = 0; c < max_blocks; c++) {
+        bool found = false;
+        InfractionBlock b = view_as<InfractionBlock>(c);
+        for (int i = 0; i < total_blocks; i++) {
+            if (blocks[i] == b) {
+                found = true;
+                continue;
+            } 
+        }
+
+        if (!found) {
+                blocks_to_clear[total_blocks_to_clear] = b;
+                total_blocks_to_clear++;
+        }
     }
 
-    if (BaseComm_IsClientMuted(client)) {
-        BaseComm_SetClientMute(client, false);
+    GFLBans_RemovePunishments(client, blocks_to_clear, total_blocks_to_clear);
+}
+
+void GFLBans_ClearPunishments(client) {
+    InfractionBlock blocks_to_clear[Block_None];
+    int max_blocks = view_as<int>(Block_None);
+    for (int c = 0; c < max_blocks; c++) {
+        blocks_to_clear[c] = view_as<InfractionBlock>(c);
     }
+
+    GFLBans_RemovePunishments(client, blocks_to_clear, max_blocks);
+}
+
+bool GFLBans_PunishmentExpiresBefore(int client, InfractionBlock block, int expires) {
+    if (!GFLBans_ValidClient(client)) {
+        return false;
+    }
+
+    return !(player_infractions[client].infraction_expires[block] > expires);
 }
 
 bool GFLBans_PunishmentToString(InfractionBlock punishment, char[] buffer, int max_size) {
@@ -65,6 +119,7 @@ bool GFLBans_PunishmentToString(InfractionBlock punishment, char[] buffer, int m
     } else if (punishment == Block_AdminChat) {
         Format(buffer, max_size, "admin_chat_block");
     }
+    return true;
 }
 
 bool GFLBans_StringToPunishment(const char[] string, InfractionBlock &punishment) {
@@ -83,4 +138,38 @@ bool GFLBans_StringToPunishment(const char[] string, InfractionBlock &punishment
     }
 
     return true;
+}
+
+void SetupExpirationTimer(int client, InfractionBlock block, int duration) {
+    int expires = GetTime() + duration;
+    if (player_infractions[client].infraction_expires[block] > expires) {
+        return;
+    }
+
+    if (player_infractions[client].infraction_timer[block] != INVALID_HANDLE) {
+        KillTimer(player_infractions[client].infraction_timer[block], true);
+    }
+    DataPack data = new DataPack();
+    data.WriteCell(client);
+    data.WriteCell(block);
+    data.Reset();
+    player_infractions[client].infraction_timer[block] = CreateTimer(float(duration * 60), Timer_ExpireInfraction, data);
+}
+
+void KillExpirationTimer(int client, InfractionBlock block) {
+    if (player_infractions[client].infraction_timer[block] != INVALID_HANDLE) {
+        KillTimer(player_infractions[client].infraction_timer[block], true);
+    }
+}
+
+Action Timer_ExpireInfraction(Handle timer, any data) {
+    DataPack dp = view_as<DataPack>(data);
+    int client = dp.ReadCell();
+    InfractionBlock infraction = view_as<InfractionBlock>(dp.ReadCell());
+
+    InfractionBlock infractions[1];
+    infractions[0] = infraction;
+
+    GFLBans_RemovePunishments(client, infractions, 1);
+    player_infractions[client].infraction_timer[infraction] = INVALID_HANDLE;
 }

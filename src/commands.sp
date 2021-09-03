@@ -81,7 +81,7 @@ Action HandleChatInfraction(const char[] command, int client, int admin_flags, c
 
     for (int c = 0; c < target_count; c++) {
         GFLBansAPI_SaveInfraction(client, target_list[c], blocks, total_blocks, time, reason);
-        GFLBans_ApplyPunishments(target_list[c], blocks, total_blocks);
+        GFLBans_ApplyPunishments(target_list[c], blocks, total_blocks, time);
     }
 
     return Plugin_Stop;
@@ -164,7 +164,7 @@ public Action CommandBan(int client, int args) {
     InfractionBlock blocks[] = {Block_Join};
     for (int c = 0; c < target_count; c++) {
         GFLBansAPI_SaveInfraction(client, target_list[c], blocks, sizeof(blocks), time, reason);
-        GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks));
+        GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks), time);
     }
 
     return Plugin_Handled;
