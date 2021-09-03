@@ -153,6 +153,38 @@ void GFLBansAPI_RemoveInfraction(int client, int target, const InfractionBlock[]
     delete punishments;
 }
 
+void GFLBansAPI_CheckClient(int client) {
+    HTTPRequest req = Start_HTTPRequest("/api/v1/infractions/check");
+    char player_id[24], player_ip[24];
+    GetClientAuthId(client, AuthId_SteamID64, player_id, sizeof(player_id), true);
+    GetClientIP(client, player_ip, sizeof(player_id), true);
+    req.AppendQueryParam("gs_service", "steam");
+    req.AppendQueryParam("gs_id", player_id);
+    req.AppendQueryParam("ip", player_ip);
+    if (g_cvar_gflbans_global_bans.BoolValue) {
+        req.AppendQueryParam("include_other_servers", "true");
+    } else {
+        req.AppendQueryParam("include_other_servers", "false");
+    }
+    req.Get(HTTPCallback_CheckPlayer, client);
+}
+
+void GFLBansAPI_CallAdmin(int client, const char[] reason) {
+    HTTPRequest req = Start_HTTPRequest("/api/v1/gs/calladmin");
+    JSONObject body = new JSONObject();
+    JSONObject player_obj = GetPlayerObj(client, false);
+    char name[64];
+    GetClientName(client, name, sizeof(name));
+    body.Set("caller", player_obj);
+    body.SetString("caller_name", name);
+    body.SetBool("include_other_servers", g_cvar_gflbans_global_bans.BoolValue);
+    body.SetString("message", reason);
+    req.Post(body, HTTPCallback_CallAdmin, client);
+
+    delete player_obj;
+    delete body;
+}
+
 public Action Timer_Heartbeat(Handle timer) {
     GFLBansAPI_DoHeartbeat();
 }
@@ -175,6 +207,31 @@ void GFLBansAPI_DoHeartbeat() {
     delete player_list;
 }
 
+public void HTTPCallback_CallAdmin(HTTPResponse response, any data) {
+    int client = view_as<int>(data);
+    int status = view_as<int>(response.Status);
+    if (status == 200 && GFLBans_ValidClient(client)) {
+        // TODO: This
+        PrintToServer("Admin called");
+    } else if (status != 200) {
+        PrintToServer("CallAdmin error %d", status);
+        // TODO: Proper logging
+    }
+}
+
+public void HTTPCallback_CheckPlayer(HTTPResponse response, any data) {
+    int client = view_as<int>(data);
+    int status = view_as<int>(response.Status);
+    if (status == 200 && GFLBans_ValidClient(client)) {
+        JSONObject check = view_as<JSONObject>(response.Data);
+        HandleCheckObj(client, check);
+        delete check;
+    } else if (status != 200) {
+        PrintToServer("Check error %d", status);
+        // TODO: Proper logging
+    }
+}
+
 public void HTTPCallback_Heartbeat(HTTPResponse response, any _data) {
     int status = view_as<int>(response.Status);
     if (status == 200) {
@@ -193,42 +250,13 @@ public void HTTPCallback_Heartbeat(HTTPResponse response, any _data) {
                 int client = GFLBans_GetClientBySteamID(steamid);
                 if (client) {
                     JSONObject check = view_as<JSONObject>(heartbeat_obj.Get("check"));
-                    JSONObjectKeys keys = check.Keys();
                     
-                    char key_buff[32];
-                    bool has_punishments = false;
-                    while (keys.ReadKey(key_buff, sizeof(key_buff))) {
-                        has_punishments = true;
-                        JSONObject check_item = view_as<JSONObject>(check.Get(key_buff));
-                        int expires;
-                        if (check_item.HasKey("expiration")) {
-                           expires = check_item.GetInt("expiration");
-                        } else {
-                            expires = 0;
-                        }
-                        delete check_item;
-
-                        InfractionBlock block;
-                        InfractionBlock blocks[Block_None];
-                        int total_blocks = 0;
-                        if (GFLBans_StringToPunishment(key_buff, block) && GFLBans_PunishmentExpiresBefore(client, block, expires)) {
-                            blocks[total_blocks] = block;
-                            total_blocks++;
-                            
-                            InfractionBlock current_block[1];
-                            current_block[0] = block;
-
-                            GFLBans_ApplyPunishments(client, current_block, sizeof(current_block), expires - GetTime());
-                        }
-                        GFLBans_ClearOtherPunishments(client, blocks, total_blocks);
-                    }
-
+                    bool has_punishments = HandleCheckObj(client, check);
                     if (!has_punishments) {
                         GFLBans_ClearPunishments(client);
                     }
 
                     delete check;
-                    delete keys;
                 } else {
                     // TODO: Log error
                 }
@@ -243,6 +271,37 @@ public void HTTPCallback_Heartbeat(HTTPResponse response, any _data) {
         PrintToServer("Heartbeat error %d", status);
         // TODO: Log error
     }
+}
+
+bool HandleCheckObj(int client, JSONObject check) {
+    JSONObjectKeys keys = check.Keys();
+                    
+    char key_buff[32];
+    while (keys.ReadKey(key_buff, sizeof(key_buff))) {
+        JSONObject check_item = view_as<JSONObject>(check.Get(key_buff));
+        int expires;
+        if (check_item.HasKey("expiration")) {
+            expires = check_item.GetInt("expiration");
+        } else {
+            expires = 0;
+        }
+        delete check_item;
+
+        InfractionBlock block;
+        InfractionBlock blocks[Block_None];
+        int total_blocks = 0;
+        if (GFLBans_StringToPunishment(key_buff, block) && GFLBans_PunishmentExpiresBefore(client, block, expires)) {
+            blocks[total_blocks] = block;
+            total_blocks++;
+            
+            InfractionBlock current_block[1];
+            current_block[0] = block;
+
+            GFLBans_ApplyPunishments(client, current_block, sizeof(current_block), expires - GetTime());
+        }
+        GFLBans_ClearOtherPunishments(client, blocks, total_blocks);
+    }
+    delete keys;
 }
 
 public void HTTPCallback_SaveInfraction(HTTPResponse response, any data) {

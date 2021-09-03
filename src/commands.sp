@@ -5,6 +5,7 @@
 
 #include <sourcemod>
 #include "includes/infractions"
+#include "includes/utils"
 
 void GFLBans_RegisterCommands() {
     AddCommandListener(CommandListener_Gag, "sm_gag");
@@ -15,6 +16,56 @@ void GFLBans_RegisterCommands() {
     AddCommandListener(CommandListener_Unsilence, "sm_unsilence");
     RegAdminCmd("sm_ban", CommandBan, ADMFLAG_BAN, "sm_ban <target> <minutes|0> [reason]", "gflbans");
     RegAdminCmd("sm_unban", CommandUnban, ADMFLAG_UNBAN, "sm_unban <steamid|ip> [reason]", "gflbans");
+
+    RegConsoleCmd("sm_calladmin", CommandCallAdmin, "Call an admin to the server");
+}
+
+public Action CommandBan(int client, int args) {
+    int target_list[MAXPLAYERS];
+    int target_count = -1;
+    char reason[128];
+    int time = 0;
+    if (!ParseCommandArguments("sm_ban", client, target_list, target_count, reason, sizeof(reason), time)) {
+        return Plugin_Handled;
+    }
+
+    if (time == 0 && !CheckCommandAccess(client, "", ADMFLAG_UNBAN, false)) {
+        ReplyToCommand(client, "%t", "No PermBan Permissions");
+        return Plugin_Handled;
+    }
+
+    InfractionBlock blocks[] = {Block_Join};
+    for (int c = 0; c < target_count; c++) {
+        GFLBansAPI_SaveInfraction(client, target_list[c], blocks, sizeof(blocks), time, reason);
+        GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks), time);
+    }
+
+    return Plugin_Handled;
+}
+
+public Action CommandUnban(int client, int args) {
+    return Plugin_Handled;
+}
+
+public Action CommandCallAdmin(int client, int args) {
+    if (!GFLBans_ValidClient(client)) {
+        return Plugin_Handled;
+    }
+
+    if (args < 1) {
+        ReplyToCommand(client, "%t", "Usage CallAdmin");
+        return Plugin_Handled;
+    }
+
+    if (GFLBans_CallAdminBanned(client)) {
+        ReplyToCommand(client, "%t", "CallAdmin Banned");
+        return Plugin_Handled;
+    }
+
+    char reason[256];
+    GetCmdArgString(reason, sizeof(reason));
+    GFLBansAPI_CallAdmin(client, reason);
+    return Plugin_Handled;
 }
 
 bool GetCommandTargets(int client, const char[] target_string, int[] target_list, int max_targets, int &target_count) {
@@ -145,31 +196,4 @@ public Action CommandListener_Unmute(int client, const char[] command, int args)
 public Action CommandListener_Unsilence(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Chat, Block_Voice};
     return HandleRemoveChatInfraction(client, ADMFLAG_CHAT, blocks, sizeof(blocks));
-}
-
-public Action CommandBan(int client, int args) {
-    int target_list[MAXPLAYERS];
-    int target_count = -1;
-    char reason[128];
-    int time = 0;
-    if (!ParseCommandArguments("sm_ban", client, target_list, target_count, reason, sizeof(reason), time)) {
-        return Plugin_Handled;
-    }
-
-    if (time == 0 && !CheckCommandAccess(client, "", ADMFLAG_UNBAN, false)) {
-        ReplyToCommand(client, "%t", "No PermBan Permissions");
-        return Plugin_Handled;
-    }
-
-    InfractionBlock blocks[] = {Block_Join};
-    for (int c = 0; c < target_count; c++) {
-        GFLBansAPI_SaveInfraction(client, target_list[c], blocks, sizeof(blocks), time, reason);
-        GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks), time);
-    }
-
-    return Plugin_Handled;
-}
-
-public Action CommandUnban(int client, int args) {
-    return Plugin_Handled;
 }

@@ -12,9 +12,18 @@
 enum struct PlayerInfractions {
     Handle infraction_timer[Block_None];
     int infraction_expires[Block_None];
+    bool call_admin_banned;
 }
 
 PlayerInfractions player_infractions[MAXPLAYERS];
+
+bool GFLBans_CallAdminBanned(int client) {
+    if (!GFLBans_ValidClient(client)) {
+        return false;
+    } else {
+        return player_infractions[client].call_admin_banned;
+    }
+}
 
 void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks, int duration) {
     if (!GFLBans_ValidClient(client)) {
@@ -40,6 +49,8 @@ void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int to
             BaseComm_SetClientGag(client, true);
         } else if (blocks[c] == Block_Voice) {
             BaseComm_SetClientMute(client, true);
+        } else if (blocks[c] == Block_CallAdmin) {
+            player_infractions[client].call_admin_banned = true;
         }
     }
 }
@@ -62,6 +73,8 @@ void GFLBans_RemovePunishments(int client, const InfractionBlock[] blocks, int t
         } else if (blocks[c] == Block_Voice) {
             BaseComm_SetClientMute(client, false);
             continue;
+        } else if (blocks[c] == Block_CallAdmin) {
+            player_infractions[client].call_admin_banned = false;
         }
     }
 }
@@ -138,6 +151,15 @@ bool GFLBans_StringToPunishment(const char[] string, InfractionBlock &punishment
     }
 
     return true;
+}
+
+void GFLBans_KillPunishmentTimers(int client) {
+    int max_blocks = view_as<int>(Block_None);
+    for (int c = 0; c < max_blocks; c++) {
+        if (player_infractions[client].infraction_timer[c] != INVALID_HANDLE) {
+            KillTimer(player_infractions[client].infraction_timer[c], true);
+        }
+    }
 }
 
 void SetupExpirationTimer(int client, InfractionBlock block, int duration) {

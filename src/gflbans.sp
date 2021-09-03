@@ -72,6 +72,12 @@ public void Cvar_PasswordChanged(ConVar cvar, const char[] old_value, const char
     }
 }
 
+public void OnClientAuthorized(int client, const char[] auth) {
+    if (!IsFakeClient(client)) {
+        GFLBansAPI_CheckClient(client);
+    }
+}
+
 void CheckServerMod() {
     if (GetEngineVersion() == Engine_CSGO) {
         Format(g_s_server_mod, sizeof(g_s_server_mod), "csgo");

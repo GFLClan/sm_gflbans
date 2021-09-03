@@ -24,3 +24,4 @@ void GFLBans_ClearPunishments(client);
 bool GFLBans_StringToPunishment(const char[] string, InfractionBlock &punishment);
 bool GFLBans_PunishmentToString(InfractionBlock punishment, char[] buffer, int max_size);
 bool GFLBans_PunishmentExpiresBefore(int client, InfractionBlock block, int expires);
+bool GFLBans_CallAdminBanned(int client);
