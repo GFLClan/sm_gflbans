@@ -1,0 +1,15 @@
+// From https://github.com/GFLClan/GFLBans-SM/blob/0670af77d65681c6e7804b0fad32e550fc8f0333/addons/sourcemod/gamedata/gflbans.games.txt
+"Games"
+{
+    "#default"
+    {
+        "Offsets"
+        {
+            "CheckOS"
+            {
+                "windows"   "1"
+                "linux"     "2"
+            }
+        }
+    }
+}

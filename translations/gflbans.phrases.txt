@@ -25,6 +25,10 @@
         "#format"   "{1:s}"
         "en"        "Usage: {1} <target> <duration> [reason]"
     }
+    "No PermBan Permissions'
+    {
+        "en"        "You do not have permission to issue permanent bans."
+    }
 
     "You're Banned"
     {

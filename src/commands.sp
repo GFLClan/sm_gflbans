@@ -17,23 +17,14 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_unban", CommandUnban, ADMFLAG_UNBAN, "sm_unban <steamid|ip> [reason]", "gflbans");
 }
 
-int GetCommandTargets(int client, const char[] target_string, int[] target_list, int max_targets) {
+bool GetCommandTargets(int client, const char[] target_string, int[] target_list, int max_targets, int &target_count) {
     char target_name[MAX_TARGET_LENGTH];
     bool tn_is_ml;
-    return ProcessTargetString(
+    int result = ProcessTargetString(
         target_string, client, target_list, max_targets, 
         COMMAND_FILTER_CONNECTED | COMMAND_FILTER_NO_BOTS,
         target_name, sizeof(target_name), tn_is_ml);
-}
 
-bool ParseCommandArguments(int client, int target_list[MAXPLAYERS], int &target_count, char[] reason, int reason_max, int &time) {
-    char arguments[256];
-    GetCmdArgString(arguments, sizeof(arguments));
-
-    char target[65];
-    int len = BreakString(arguments, target, sizeof(target));
-
-    int result = GetCommandTargets(client, target, target_list, MAXPLAYERS);
     if (result < 0) {
         ReplyToTargetError(client, result);
         return false;
@@ -42,11 +33,28 @@ bool ParseCommandArguments(int client, int target_list[MAXPLAYERS], int &target_
         return false;
     }
     target_count = result;
+    return true;
+}
+
+bool ParseCommandArguments(const char[] command, int client, int target_list[MAXPLAYERS], int &target_count, char[] reason, int reason_max, int &time) {
+    if (GetCmdArgs() < 2) {
+        ReplyToCommand(client, "%t", "Infraction Usage", command);
+        return false;
+    }
+
+    char arguments[256];
+    GetCmdArgString(arguments, sizeof(arguments));
+
+    char target[65];
+    int len = BreakString(arguments, target, sizeof(target));
+
+    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS, target_count)) {
+        return false;
+    }
 
     char s_time[12];
-    time = StringToInt(s_time);
-
     int next_len = BreakString(arguments[len], s_time, sizeof(s_time));
+    time = StringToInt(s_time);
     if (next_len != -1) {
         len += next_len;
     } else {
@@ -58,88 +66,110 @@ bool ParseCommandArguments(int client, int target_list[MAXPLAYERS], int &target_
     return true;
 }
 
-Action HandleChatInfraction(const char[] command, int client, int args, int admin_flags, const InfractionBlock[] blocks, int total_blocks) {
+Action HandleChatInfraction(const char[] command, int client, int admin_flags, const InfractionBlock[] blocks, int total_blocks) {
     if (client && !CheckCommandAccess(client, "", admin_flags, true)) {
         return Plugin_Continue;
-    }
-
-    if (args < 2) {
-        ReplyToCommand(client, "%t", "Infraction Usage", command);
-        return Plugin_Stop;
     }
 
     int target_list[MAXPLAYERS];
     int target_count = -1;
     char reason[128];
     int time = 0;
-    if (!ParseCommandArguments(client, target_list, target_count, reason, sizeof(reason), time)) {
+    if (!ParseCommandArguments(command, client, target_list, target_count, reason, sizeof(reason), time)) {
         return Plugin_Stop;
     }
 
     for (int c = 0; c < target_count; c++) {
-        GFLBans_ApplyInfraction(client, target_list[c], blocks, total_blocks, time, reason);
+        GFLBansAPI_SaveInfraction(client, target_list[c], blocks, total_blocks, time, reason);
+        GFLBans_ApplyPunishments(target_list[c], blocks, total_blocks);
     }
 
     return Plugin_Stop;
 }
 
-Action HandleRemoveChatInfraction(int client, int args, int admin_flags, const InfractionBlock[] blocks, int total_blocks) {
+Action HandleRemoveChatInfraction(int client, int admin_flags, const InfractionBlock[] blocks, int total_blocks) {
     if (client && !CheckCommandAccess(client, "", admin_flags, true)) {
         return Plugin_Continue;
     }
+
+    char arguments[256];
+    GetCmdArgString(arguments, sizeof(arguments));
+
+    char target[65], reason[128];
+    int len = BreakString(arguments, target, sizeof(target));
+    if (len == -1) {
+        len = 0;
+        arguments[0] = '\0';
+    }
+    Format(reason, sizeof(reason), arguments[len]);
+
+    int target_list[MAXPLAYERS];
+    int target_count = -1;
+    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS, target_count)) {
+        return Plugin_Stop;
+    }
+
+    for (int c = 0; c < target_count; c++) {
+        GFLBansAPI_RemoveInfraction(client, target_list[c], blocks, total_blocks, reason);
+        GFLBans_RemovePunishments(target_list[c], blocks, total_blocks);
+    }
+
     return Plugin_Stop;
 }
 
 public Action CommandListener_Gag(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Chat};
-    return HandleChatInfraction(command, client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleChatInfraction(command, client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandListener_Mute(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Voice};
-    return HandleChatInfraction(command, client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleChatInfraction(command, client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandListener_Silence(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Chat, Block_Voice};
-    return HandleChatInfraction(command, client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleChatInfraction(command, client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandListener_Ungag(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Chat};
-    return HandleRemoveChatInfraction(client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleRemoveChatInfraction(client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandListener_Unmute(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Voice};
-    return HandleRemoveChatInfraction(client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleRemoveChatInfraction(client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandListener_Unsilence(int client, const char[] command, int args) {
     InfractionBlock blocks[] = {Block_Chat, Block_Voice};
-    return HandleRemoveChatInfraction(client, args, ADMFLAG_CHAT, blocks, sizeof(blocks));
+    return HandleRemoveChatInfraction(client, ADMFLAG_CHAT, blocks, sizeof(blocks));
 }
 
 public Action CommandBan(int client, int args) {
-    if (args < 2) {
-        ReplyToCommand(client, "%t", "Infraction Usage", "sm_ban");
-        return Plugin_Stop;
-    }
-
     int target_list[MAXPLAYERS];
     int target_count = -1;
     char reason[128];
     int time = 0;
-    if (!ParseCommandArguments(client, target_list, target_count, reason, sizeof(reason), time)) {
-        return Plugin_Stop;
+    if (!ParseCommandArguments("sm_ban", client, target_list, target_count, reason, sizeof(reason), time)) {
+        return Plugin_Handled;
     }
 
     if (time == 0 && !CheckCommandAccess(client, "", ADMFLAG_UNBAN, false)) {
-        ReplyToCommand(client, "%t", "No PermBan Permission");
+        ReplyToCommand(client, "%t", "No PermBan Permissions");
+        return Plugin_Handled;
     }
-    return Plugin_Stop;
+
+    InfractionBlock blocks[] = {Block_Join};
+    for (int c = 0; c < target_count; c++) {
+        GFLBansAPI_SaveInfraction(client, target_list[c], blocks, sizeof(blocks), time, reason);
+        GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks));
+    }
+
+    return Plugin_Handled;
 }
 
 public Action CommandUnban(int client, int args) {
-    return Plugin_Stop;
+    return Plugin_Handled;
 }

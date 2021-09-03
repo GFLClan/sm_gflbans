@@ -11,4 +11,6 @@
 #include "infractions"
 
 void GFLBansAPI_SaveInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration, const char[] reason);
-void GFLBansAPI_RevokeInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks);
+void GFLBansAPI_RemoveInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks, const char[] remove_reason);
+void GFLBansAPI_StartHeartbeatTimer();
+void GFLBansAPI_DoHeartbeat();

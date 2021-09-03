@@ -16,5 +16,7 @@ enum InfractionBlock {
     Block_AdminChat
 }
 
-void GFLBans_ApplyInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration, const char[] reason);
-void GFLBans_RevertInfraction(int client, int target, const InfractionBlock[] blocks, int total_blocks);
+void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks);
+void GFLBans_RemovePunishments(int client, const InfractionBlock[] blocks, int total_blocks);
+void GFLBans_ClearPunishments(int client);
+bool GFLBans_StringToPunishment(const char[] string, InfractionBlock &punishment);

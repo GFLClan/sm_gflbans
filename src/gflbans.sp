@@ -8,6 +8,8 @@
 #include <sourcemod>
 
 #include "includes/commands"
+#include "includes/globals"
+#include "includes/api"
 
 public Plugin myinfo = {
     name = "GFLBans",
@@ -19,8 +21,80 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
     GFLBans_RegisterCommands();
-    g_cvar_gflbans_web = CreateConVar("gflbans_website", "", "Base URL for GFL Bans instance");
+    g_cvar_gflbans_website = CreateConVar("gflbans_website", "", "Base URL for GFL Bans instance");
+    g_cvar_gflbans_global_bans = CreateConVar("gflbans_global_bans", "1", "Should this server accept global bans");
+    g_cvar_gflbans_server_id = CreateConVar("gflbans_server_id", "", "ID for this server in GFL Bans", FCVAR_PROTECTED);
+    g_cvar_gflbans_server_key = CreateConVar("gflbans_server_key", "", "Key for this server in GFL Bans", FCVAR_PROTECTED);
+
+    ConVar cvar_hostname = FindConVar("hostname");
+    ConVar cvar_password = FindConVar("sv_password");
+    cvar_hostname.AddChangeHook(Cvar_HostnameChanged);
+    cvar_password.AddChangeHook(Cvar_PasswordChanged);
+
+    CheckServerMod();
+    CheckServerOS();
+    GFLBansAPI_StartHeartbeatTimer();
 
     LoadTranslations("common.phrases");
     LoadTranslations("gflbans.phrases");
+}
+
+public void OnMapStart() {
+    GetCurrentMap(g_s_current_map, sizeof(g_s_current_map));
+}
+
+public void OnConfigsExecuted() {
+    ConVar cvar_hostname = FindConVar("hostname");
+    ConVar cvar_password = FindConVar("sv_password");
+    
+    cvar_hostname.GetString(g_s_server_hostname, sizeof(g_s_server_hostname));
+
+    char buffer[32];
+    cvar_password.GetString(buffer, sizeof(buffer));
+    if (strlen(buffer) == 0) {
+        g_b_server_locked = false;
+    } else {
+        g_b_server_locked = true;
+    }
+
+    GFLBansAPI_DoHeartbeat();
+}
+
+public void Cvar_HostnameChanged(ConVar cvar, const char[] old_value, const char[] new_value) {
+    Format(g_s_server_hostname, sizeof(g_s_server_hostname), new_value);
+}
+
+public void Cvar_PasswordChanged(ConVar cvar, const char[] old_value, const char[] new_value) {
+    if (strlen(new_value) == 0) {
+        g_b_server_locked = false;
+    } else {
+        g_b_server_locked = true;
+    }
+}
+
+void CheckServerMod() {
+    if (GetEngineVersion() == Engine_CSGO) {
+        Format(g_s_server_mod, sizeof(g_s_server_mod), "csgo");
+    } else if (GetEngineVersion() == Engine_CSS) { 
+        Format(g_s_server_mod, sizeof(g_s_server_mod), "css"); // The best game
+    } else if (GetEngineVersion() == Engine_TF2) { 
+        Format(g_s_server_mod, sizeof(g_s_server_mod), "tf");
+    } else {
+        SetFailState("Incompatible mod");
+    }
+}
+
+void CheckServerOS() {
+    Handle game_data = LoadGameConfigFile("gflbans.games");
+    if (game_data == INVALID_HANDLE) {
+        // TODO: Log error
+        Format(g_s_server_os, sizeof(g_s_server_os), "unknown");
+    } else {
+        if (GameConfGetOffset(game_data, "CheckOS") == 1) {
+            Format(g_s_server_os, sizeof(g_s_server_os), "windows");
+        } else {
+            Format(g_s_server_os, sizeof(g_s_server_os), "linux");
+        }
+        delete game_data;
+    }
 }
