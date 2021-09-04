@@ -1,5 +1,5 @@
 ## SM GFL Bans
-[![Workflow](https://github.com/GFLClan/sm_gflbans/actions/workflows/ci-main.yml/badge.svg)](https://github.com/GFLClan/sm_gflbans/actions)
+[![Workflow](https://github.com/GFLClan/sm_gflbans/actions/workflows/sourcemod.yml/badge.svg)](https://github.com/GFLClan/sm_gflbans/actions)
 
 ### Required configuration
 After running the plugin for the first time the plugin will create a configuration file at `config/sourcemod/gflbans.cfg`.
