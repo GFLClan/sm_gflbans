@@ -1,10 +1,22 @@
 #include <sourcemod>
+#include "includes/utils"
 
 void GFLBansChat_NotifyAdmin(int client, const char[] format, any ...) {
     char buffer[512];
     SetGlobalTransTarget(client);
     VFormat(buffer, sizeof(buffer), format, 3);
     c_print_to_chat(client, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+}
+
+void GFLBansChat_NotifyAdmins(const char[] format, any ...) {
+    char buffer[512];
+    for (int c = 1; c < MaxClients; c++) {
+        if (GFLBans_ValidClient(c) && CheckCommandAccess(c, "", ADMFLAG_KICK, true)) {
+            SetGlobalTransTarget(c);
+            VFormat(buffer, sizeof(buffer), format, 2);
+            c_print_to_chat(c, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+        }
+    }
 }
 
 void GFLBansChat_Announce(int client, const char[] format, any ...) {

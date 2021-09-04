@@ -39,6 +39,11 @@
     {
         "en"        "You do not have permission to issue permanent bans."
     }
+    "Player Using VPN"
+    {
+        "#format"   "{1:s}"
+        "en"        "{1} connected via a VPN."
+    }
     
     "You've been CallAdmin banned"
     {
@@ -80,6 +85,10 @@
     {
         "#format"   "{1:s},{2:s},{3:s}"
         "en"        "{1} banned {2} {3}"
+    }
+    "VPN Kicked"
+    {
+        "en"       "This server does not allow VPNs. Please disable your VPN and try connecting again." 
     }
     "Warned"
     {

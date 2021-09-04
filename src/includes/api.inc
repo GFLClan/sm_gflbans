@@ -15,4 +15,5 @@ void GFLBansAPI_RemoveInfraction(int client, int target, const InfractionBlock[]
 void GFLBansAPI_StartHeartbeatTimer();
 void GFLBansAPI_DoHeartbeat();
 void GFLBansAPI_CheckClient(int client);
+void GFLBansAPI_VPNCheckClient(int client);
 void GFLBansAPI_CallAdmin(int client, const char[] reason);

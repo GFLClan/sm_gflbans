@@ -8,5 +8,6 @@
 #endif
 #define _gflbans_chat_include
 
+void GFLBansChat_NotifyAdmins(const char[] format, any ...);
 void GFLBansChat_NotifyAdmin(int client, const char[] format, any ...);
 void GFLBansChat_Announce(int client, const char[] format, any ...);

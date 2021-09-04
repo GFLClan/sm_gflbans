@@ -164,6 +164,18 @@ void GFLBansAPI_CheckClient(int client) {
     req.Get(HTTPCallback_CheckPlayer, client);
 }
 
+
+void GFLBansAPI_VPNCheckClient(int client) {
+    HTTPRequest req = Start_HTTPRequest("/api/v1/gs/vpn");
+    char player_id[24], player_ip[24];
+    GetClientAuthId(client, AuthId_SteamID64, player_id, sizeof(player_id), true);
+    GetClientIP(client, player_ip, sizeof(player_id), true);
+    req.AppendQueryParam("gs_service", "steam");
+    req.AppendQueryParam("gs_id", player_id);
+    req.AppendQueryParam("ip", player_ip);
+    req.Get(HTTPCallback_VPNCheck, client);
+}
+
 void GFLBansAPI_CallAdmin(int client, const char[] reason) {
     HTTPRequest req = Start_HTTPRequest("/api/v1/gs/calladmin");
     JSONObject body = new JSONObject();
@@ -250,10 +262,34 @@ public void HTTPCallback_CheckPlayer(HTTPResponse response, any data, const char
         JSONObject check = view_as<JSONObject>(response.Data);
         HandleCheckObj(client, check);
         delete check;
-        GFLBans_LogInfo("Checked player %N", client);
+        GFLBans_LogDebug("Checked player %N", client);
     } else if (status != 200) {
         LogResponseError("checking player", response, error);
     }
+}
+
+public void HTTPCallback_VPNCheck(HTTPResponse response, any data, const char[] error) {
+    int client = view_as<int>(data);
+    int status = view_as<int>(response.Status);
+    if (status == 200 && GFLBans_ValidClient(client)) {
+        JSONObject resp = view_as<JSONObject>(response.Data);
+        bool is_vpn = resp.GetBool("is_vpn");
+        bool is_cloud_gaming = resp.GetBool("is_cloud_gaming");
+        bool is_immune = resp.GetBool("is_immune");
+        GFLBans_LogDebug("%N VPN check: is_vpn %d is_cloud_gaming %d is_immune %d", client, is_vpn, is_cloud_gaming, is_immune);
+        if ((is_vpn || (is_cloud_gaming && !g_cvar_gflbans_allow_cloud_gaming.BoolValue)) && !is_immune) {
+            if (g_vpn_action == VPNAction_Kick) {
+                KickClient(client, "%t", "VPN Kicked");
+            } else {
+                char client_name[64];
+                GetClientName(client, client_name, sizeof(client_name));
+                GFLBansChat_NotifyAdmins("%t", "Player Using VPN", client_name);
+            }
+        }
+    } else if (status != 200) {
+        LogResponseError("VPN checking player", response, error);
+    }
+
 }
 
 public void HTTPCallback_Heartbeat(HTTPResponse response, any _data, const char[] error) {

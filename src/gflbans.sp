@@ -28,6 +28,10 @@ public void OnPluginStart() {
     g_cvar_gflbans_server_id = CreateConVar("gflbans_server_id", "", "ID for this server in GFL Bans", FCVAR_PROTECTED);
     g_cvar_gflbans_server_key = CreateConVar("gflbans_server_key", "", "Key for this server in GFL Bans", FCVAR_PROTECTED);
 
+    g_cvar_gflbans_vpn_mode = CreateConVar("gflbans_vpn_mode", "kick", "kick|notify - Action to take when a VPN is detected");
+    g_cvar_gflbans_vpn_mode.AddChangeHook(Cvar_VPNModeChanged);
+    g_cvar_gflbans_allow_cloud_gaming = CreateConVar("gflbans_allow_cloud_gaming", "1", "Should cloud gaming IPs be allowed");
+
     ConVar cvar_hostname = FindConVar("hostname");
     ConVar cvar_password = FindConVar("sv_password");
     cvar_hostname.AddChangeHook(Cvar_HostnameChanged);
@@ -39,6 +43,7 @@ public void OnPluginStart() {
 
     LoadTranslations("common.phrases");
     LoadTranslations("gflbans.phrases");
+    AutoExecConfig(true, "gflbans");
 
     for (int c = 1; c <= MaxClients; c++) {
         if (IsClientAuthorized(c)) {
@@ -62,11 +67,10 @@ public void OnConfigsExecuted() {
 
     char buffer[32];
     cvar_password.GetString(buffer, sizeof(buffer));
-    if (strlen(buffer) == 0) {
-        g_b_server_locked = false;
-    } else {
-        g_b_server_locked = true;
-    }
+    Cvar_PasswordChanged(cvar_password, "", buffer);
+    
+    g_cvar_gflbans_vpn_mode.GetString(buffer, sizeof(buffer));
+    Cvar_VPNModeChanged(g_cvar_gflbans_vpn_mode, "", buffer);
 
     GFLBansLogs_OnConfigsLoaded();
     GFLBansAPI_DoHeartbeat();
@@ -75,6 +79,7 @@ public void OnConfigsExecuted() {
 public void OnClientAuthorized(int client, const char[] auth) {
     if (!IsFakeClient(client)) {
         GFLBansAPI_CheckClient(client);
+        GFLBansAPI_VPNCheckClient(client);
     }
 }
 
@@ -104,6 +109,17 @@ public void Cvar_PasswordChanged(ConVar cvar, const char[] old_value, const char
         g_b_server_locked = false;
     } else {
         g_b_server_locked = true;
+    }
+}
+
+public void Cvar_VPNModeChanged(ConVar cvar, const char[] old_value, const char[] new_value) {
+    if (StrEqual(new_value, "kick", false)) {
+        g_vpn_action = VPNAction_Kick;
+    } else if (StrEqual(new_value, "notify", false)) {
+        g_vpn_action = VPNAction_Notify;
+    } else {
+        GFLBans_LogWarn("gfl_vpn_mode %s is invalid, defaulting to notify", new_value);
+        g_vpn_action = VPNAction_Notify;
     }
 }
 
