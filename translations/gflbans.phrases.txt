@@ -3,36 +3,132 @@
     "Minutes"
     {
         "#format"   "{1:d}"
-        "en"        "{1} minutes"
+        "en"        "for {1} minutes"
     }
     "Hours"
     {
         "#format"   "{1:d}"
-        "en"        "{1} hours"
+        "en"        "for {1} hours"
     }
     "Days"
     {
         "#format"   "{1:d}"
-        "en"        "{1} days"
+        "en"        "for {1} days"
     }
     "Weeks"
     {
         "#format"   "{1:d}"
-        "en"        "{1} weeks"
+        "en"        "for {1} weeks"
     }
+    "Permanently"
+    {
+        "en"        "permanently"
+    }
+    
     "Infraction Usage"
     {
         "#format"   "{1:s}"
         "en"        "Usage: {1} <target> <duration> [reason]"
     }
+    "Usage CallAdmin"
+    {
+        "en"        "Usage: sm_calladmin <reason>"
+    }
+
     "No PermBan Permissions'
     {
         "en"        "You do not have permission to issue permanent bans."
+    }
+    
+    "You've been CallAdmin banned"
+    {
+        "en"        "You have been banned from using !calladmin"
+    }
+    "You've been muted"
+    {
+        "en"        "You have been muted"
+    }
+    "You've been gagged"
+    {
+        "en"        "You have been gagged"
+    }
+    "You've been CallAdmin unbanned"
+    {
+        "en"        "You have been unbanned from using !calladmin"
+    }
+    "You've been unmuted"
+    {
+        "en"        "You have been unmuted"
+    }
+    "You've been ungagged"
+    {
+        "en"        "You have been ungagged"
     }
 
     "You're Banned"
     {
         "#format"   "{1:s}"
         "en"        "You have been banned, visit {1} for more info."
+    }
+    "You're CallAdmin banned"
+    {
+        "en"        "You are currently banned from using !calladmin"
+    }
+
+
+    "Banned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} banned {2} {3}"
+    }
+    "Warned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} warned {2} {3}"
+    }
+    "Muted"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} muted {2} {3}"
+    }
+    "Gagged"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} gagged {2} {3}"
+    }
+    "Silenced"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} silenced {2} {3}"
+    }
+    "CallAdmin Banned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "en"        "{1} banned {2} from using !calladmin {3}"
+    }
+    "Admin Called"
+    {
+        "en"        "An admin has been called, please be patient"
+    }
+    "Claimed CallAdmin"
+    {
+        "en"        "You have claimed this report."
+    }
+
+    "Error calling admin"
+    {
+        "en"        "There was an error calling an admin, please try again shortly"
+    }
+    "Error saving infraction"
+    {
+        "en"        "There was an error saving infraction, punishments might not be saved."
+    }
+    "Error removing infraction"
+    {
+        "en"        "There was an error removing infraction, punishments may not have been removed."
+    }
+    "Error claiming CallAdmin"
+    {
+        "en"        "There was an error claiming admin call, please try again shortly"
     }
 }

@@ -9,6 +9,7 @@
 #include "includes/utils"
 #include "includes/infractions"
 #include "includes/log"
+#include "includes/chat"
 
 void GFLBansAPI_StartHeartbeatTimer() {
     CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);
@@ -216,11 +217,15 @@ public void HTTPCallback_CallAdmin(HTTPResponse response, any data, const char[]
     int client = view_as<int>(data);
     int status = view_as<int>(response.Status);
     if (status == 200) {
-        // TODO: Notify client
-        GFLBans_LogDebug("GFLBansAPI - Admin called");
+        if (GFLBans_ValidClient(client)) {
+            GFLBansChat_Announce(client, "%t", "Admin Called");
+        }
+        GFLBans_LogInfo("GFLBansAPI - Admin called");
     } else if (status != 200) {
+        if (GFLBans_ValidClient(client)) {
+            GFLBansChat_Announce(client, "%t", "Error calling admin");
+        }
         LogResponseError("calling admin", response, error);
-        // TODO: Notify client
     }
 }
 
@@ -228,10 +233,12 @@ public void HTTPCallback_ClaimCallAdmin(HTTPResponse response, any data, const c
     int client = view_as<int>(data);
     int status = view_as<int>(response.Status);
     if (status == 200) {
-        // TODO: Notify client
-        GFLBans_LogDebug("GFLBansAPI - Admin call claimed");
+        if (GFLBans_ValidClient(client)) {
+            GFLBansChat_NotifyAdmin(client, "%t", "Claimed CallAdmin");
+        }
+        GFLBans_LogInfo("GFLBansAPI - Admin call claimed");
     } else if (status != 200) {
-        // TODO: Notify client
+        GFLBansChat_NotifyAdmin(client, "%t", "Error claiming CallAdmin");
         LogResponseError("claiming CallAdmin", response, error);
     }
 }
@@ -289,20 +296,26 @@ public void HTTPCallback_Heartbeat(HTTPResponse response, any _data, const char[
 
 public void HTTPCallback_SaveInfraction(HTTPResponse response, any data, const char[] error) {
     int status = view_as<int>(response.Status);
+    int client = view_as<int>(data);
     if (status == 200) {
-        GFLBans_LogDebug("GFLBansAPI - Infraction saved");
+        GFLBans_LogInfo("GFLBansAPI - Infraction saved");
     } else {
-        // TODO: Notify client
+        if (GFLBans_ValidClient(client)) {
+            GFLBansChat_NotifyAdmin(client, "%t", "Error saving infraction");
+        }
         LogResponseError("saving infraction", response, error);
     }
 }
 
 public void HTTPCallback_RemoveInfraction(HTTPResponse response, any data, const char[] error) {
     int status = view_as<int>(response.Status);
+    int client = view_as<int>(data);
     if (status == 200) {
-        GFLBans_LogDebug("GFLBansAPI - Infraction removed");
+        GFLBans_LogInfo("GFLBansAPI - Infraction removed");
     } else {
-        // TODO: Notify client
+        if (GFLBans_ValidClient(client)) {
+            GFLBansChat_NotifyAdmin(client, "%t", "Error removing infraction");
+        }
         LogResponseError("removing infraction", response, error);
     }
 }
@@ -314,7 +327,13 @@ void LogResponseError(const char[] action, HTTPResponse response, const char[] e
         if (data.HasKey("detail")) {
             data.GetString("detail", detail, sizeof(detail));
         }
-        GFLBans_LogError("API Error %s;\n unexpected status code %d\nclient error: %s\ndetail: %s", action, response.Status, error, detail);
+        GFLBans_LogError(
+            "API Error %s;\n -> unexpected status code %d\n -> client error: %s\n -> detail: %s", 
+            action, 
+            response.Status, 
+            error, 
+            detail
+        );
 }
 
 bool HandleCheckObj(int client, JSONObject check) {

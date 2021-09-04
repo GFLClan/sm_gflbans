@@ -9,6 +9,7 @@
 #include "includes/utils"
 #include "includes/api"
 #include "includes/log"
+#include "includes/chat"
 
 enum struct PlayerInfractions {
     Handle infraction_timer[Block_None];
@@ -29,8 +30,6 @@ bool GFLBans_CallAdminBanned(int client) {
 void GFLBans_ApplyPunishment(int client, InfractionBlock block, int duration) {
     GFLBans_LogDebug("Applying infraction %d to %N", block, client);
     
-    // TODO: Notify client
-
     if (duration > 0) {
         SetupExpirationTimer(client, block, duration);
     }
@@ -39,22 +38,39 @@ void GFLBans_ApplyPunishment(int client, InfractionBlock block, int duration) {
         g_cvar_gflbans_website.GetString(website, sizeof(website));
         KickClient(client, "%t", "You're Banned", website);
     } else if (block == Block_Chat) {
+        if (!BaseComm_IsClientGagged(client)) {
+            GFLBansChat_Announce(client, "%t", "You've been gagged");
+        }
         BaseComm_SetClientGag(client, true);
     } else if (block == Block_Voice) {
+        if (!BaseComm_IsClientMuted(client)) {
+            GFLBansChat_Announce(client, "%t", "You've been muted");
+        }
         BaseComm_SetClientMute(client, true);
     } else if (block == Block_CallAdmin) {
+        if (!player_infractions[client].call_admin_banned) {
+            GFLBansChat_Announce(client, "%t", "You've been CallAdmin banned");
+        }
         player_infractions[client].call_admin_banned = true;
     }
 }
 
 void GFLBans_RemovePunishment(int client, InfractionBlock block) {    
-    // TODO: Notify client
     KillExpirationTimer(client, block);
     if (block == Block_Chat) {
+        if (BaseComm_IsClientGagged(client)) {
+            GFLBansChat_Announce(client, "%t", "You've been ungagged");
+        }
         BaseComm_SetClientGag(client, false);
     } else if (block == Block_Voice) {
+        if (BaseComm_IsClientMuted(client)) {
+            GFLBansChat_Announce(client, "%t", "You've been unmuted");
+        }
         BaseComm_SetClientMute(client, false);
     } else if (block == Block_CallAdmin) {
+        if (player_infractions[client].call_admin_banned) {
+            GFLBansChat_Announce(client, "%t", "You've been CallAdmin unbanned");
+        }
         player_infractions[client].call_admin_banned = false;
     }
 }
@@ -175,7 +191,7 @@ void SetupExpirationTimer(int client, InfractionBlock block, int duration) {
     data.WriteCell(client);
     data.WriteCell(block);
     data.Reset();
-    player_infractions[client].infraction_timer[block] = CreateTimer(float(duration * 60), Timer_ExpireInfraction, data);
+    player_infractions[client].infraction_timer[block] = CreateTimer(float(duration * 60), Timer_ExpireInfraction, data, TIMER_DATA_HNDL_CLOSE);
 }
 
 void KillExpirationTimer(int client, InfractionBlock block) {

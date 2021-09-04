@@ -10,18 +10,19 @@ bool GFLBans_ValidClient(int client) {
 }
 
 void GFLBans_FormatDuration(int client, int duration, char[] buffer, int max_size) {
-    SetGlobalTransTarget(client);
-    if (duration < 90) {
-        Format(buffer, max_size, "%t", "Minutes", duration);
+    if (duration == 0) {
+        Format(buffer, max_size, "%T", "Permanently", client);
+    } else if (duration < 90) {
+        Format(buffer, max_size, "%T", "Minutes", client, duration);
     } else if (duration < 1440) {
         int hours = RoundFloat(float(duration) / 60.0);
-        Format(buffer, max_size, "%t", "Hours", hours);
+        Format(buffer, max_size, "%T", "Hours", client, hours);
     } else if (duration < 10080) {
         int days = RoundFloat(float(duration) / 1440.0);
-        Format(buffer, max_size, "%t", "Days", days);
+        Format(buffer, max_size, "%T", "Days", client, days);
     } else {
         int weeks = RoundFloat(float(duration) / 10080.0);
-        Format(buffer, max_size, "%t", "Weeks", weeks);
+        Format(buffer, max_size, "%T", "Weeks", client, weeks);
     }
 }
 
