@@ -140,4 +140,8 @@
     {
         "en"        "There was an error claiming admin call, please try again shortly"
     }
+    "CallAdmin Rate Limit"
+    {
+        "en"        "An admin was called to this server recently. Please wait a while before trying again."
+    }
 }

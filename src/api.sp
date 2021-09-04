@@ -11,6 +11,8 @@
 #include "includes/log"
 #include "includes/chat"
 
+int last_call_admin_time = 0;
+
 void GFLBansAPI_StartHeartbeatTimer() {
     CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);
 }
@@ -177,6 +179,11 @@ void GFLBansAPI_VPNCheckClient(int client) {
 }
 
 void GFLBansAPI_CallAdmin(int client, const char[] reason) {
+    if (GetTime() - last_call_admin_time < 600) {
+        GFLBansChat_Announce(client, "%t", "CallAdmin Rate Limit");
+        return;
+    }
+
     HTTPRequest req = Start_HTTPRequest("/api/v1/gs/calladmin");
     JSONObject body = new JSONObject();
     JSONObject player_obj = GetPlayerObj(client, false);
@@ -229,6 +236,7 @@ public void HTTPCallback_CallAdmin(HTTPResponse response, any data, const char[]
     int client = view_as<int>(data);
     int status = view_as<int>(response.Status);
     if (status == 200) {
+        last_call_admin_time = GetTime();
         if (GFLBans_ValidClient(client)) {
             GFLBansChat_Announce(client, "%t", "Admin Called");
         }
