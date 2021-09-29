@@ -144,4 +144,54 @@
     {
         "en"        "An admin was called to this server recently. Please wait a while before trying again."
     }
+
+    // Admin menu
+    "Ban player"
+    {
+        "en"        "Ban player"
+    }
+    "Mute player"
+    {
+        "en"        "Mute player"
+    }
+    "Gag player"
+    {
+        "en"        "Gag player"
+    }
+    "Silence player"
+    {
+        "en"        "Silence player"
+    }
+    "Warn player"
+    {
+        "en"        "Warn player"
+    }
+    "CallAdmin ban player"
+    {
+        "en"        "CA ban player"
+    }
+    "Punish player"
+    {
+        "en"        "Punish player"
+    }
+    "Target not found"
+    {
+        "en"        "Target not found"
+    }
+    "Unable to target"
+    {
+        "en"        "You are unable to target this player"
+    }
+    "Enter infraction reason"
+    {
+        "en"        "Type a reason for this infraction in chat. Use !gbabort to abort punishment."
+    }
+    "Player no longer available"
+    {
+        "en"        "Target player is no longer available"
+    }
+    "Punishment aborted"
+    {
+        "en"        "Punishment aborted"
+    }
 }

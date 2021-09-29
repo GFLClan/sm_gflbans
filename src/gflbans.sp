@@ -6,6 +6,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
+#include <adminmenu>
 #include <clientprefs>
 #include "includes/commands"
 #include "includes/globals"
@@ -44,6 +45,11 @@ public void OnPluginStart() {
     LoadTranslations("common.phrases");
     LoadTranslations("gflbans.phrases");
     AutoExecConfig(true, "gflbans");
+    
+    TopMenu topmenu;
+    if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null)) {
+        OnAdminMenuReady(topmenu);
+    }
 
     for (int c = 1; c <= MaxClients; c++) {
         if (IsClientAuthorized(c)) {
@@ -76,6 +82,10 @@ public void OnConfigsExecuted() {
     GFLBansAPI_DoHeartbeat();
 }
 
+public Action OnClientSayCommand(int client, const char[] command, const char[] args) {
+    return GFLBansAM_OnClientSayCommand(client, args);
+}
+
 public void OnClientAuthorized(int client, const char[] auth) {
     if (!IsFakeClient(client)) {
         GFLBansAPI_CheckClient(client);
@@ -91,6 +101,7 @@ public void OnClientPostAdminCheck(int client) {
 
 public void OnClientDisconnect(int client) {
     if (!IsFakeClient(client)) {
+        GFLBansAM_Abort(client);
         GFLBansLogs_OnClientDisconnected(client);
     }
     GFLBans_KillPunishmentTimers(client);
@@ -138,7 +149,7 @@ void CheckServerMod() {
 void CheckServerOS() {
     Handle game_data = LoadGameConfigFile("gflbans.games");
     if (game_data == INVALID_HANDLE) {
-        // TODO: Log error
+        GFLBans_LogError("Error getting server OS, unable to load gamedata");
         Format(g_s_server_os, sizeof(g_s_server_os), "unknown");
     } else {
         if (GameConfGetOffset(game_data, "CheckOS") == 1) {

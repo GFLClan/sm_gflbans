@@ -1,11 +1,44 @@
 #include <sourcemod>
 #include "includes/utils"
+#include "includes/chat"
+
+void GFLBansChat_AnnounceAction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration) {
+    char admin[64], targ[64], s_duration[32], translation_str[12];
+    GetClientName(client, admin, sizeof(admin));
+    GetClientName(target, targ, sizeof(targ));
+    for (int c = 1; c <= MaxClients; c++) {
+        if (IsClientConnected(c) && !IsFakeClient(c)) {
+            GFLBans_FormatDuration(c, duration, s_duration, sizeof(s_duration));
+            if (total_blocks == 0) {
+                Format(translation_str, sizeof(translation_str), "Warned");
+                GFLBansChat_Announce(c, "%t", translation_str, admin, targ, s_duration);
+            }
+            
+            for (int i = 0; i < total_blocks; i++) {
+                if (blocks[i] == Block_Join) {
+                    Format(translation_str, sizeof(translation_str), "Banned");
+                } else if (blocks[i] == Block_Voice) {
+                    Format(translation_str, sizeof(translation_str), "Muted");
+                } else if (blocks[i] == Block_Chat) {
+                    Format(translation_str, sizeof(translation_str), "Gagged");
+                } else if (blocks[i] == Block_CallAdmin) {
+                    Format(translation_str, sizeof(translation_str), "CallAdmin Banned");
+                }
+                GFLBansChat_Announce(c, "%t", translation_str, admin, targ, s_duration);
+            }
+        }
+    }
+}
 
 void GFLBansChat_NotifyAdmin(int client, const char[] format, any ...) {
     char buffer[512];
     SetGlobalTransTarget(client);
     VFormat(buffer, sizeof(buffer), format, 3);
-    c_print_to_chat(client, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+    if (client == 0) {
+        PrintToServer("[GFLBans] %s", buffer);
+    } else {
+        c_print_to_chat(client, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+    }
 }
 
 void GFLBansChat_NotifyAdmins(const char[] format, any ...) {
