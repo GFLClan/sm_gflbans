@@ -20,9 +20,8 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_gbabort", CommandAbort, ADMFLAG_KICK, "Aborts applying a menu punishment", "gflbans");
     RegAdminCmd("sm_warn", CommandWarn, ADMFLAG_KICK, "sm_warn <target> <minutes|0> [reason]", "gflbans");
     RegAdminCmd("sm_ban", CommandBan, ADMFLAG_BAN, "sm_ban <target> <minutes|0> [reason]", "gflbans");
-    RegAdminCmd("sm_unban", CommandUnban, ADMFLAG_UNBAN, "sm_unban <steamid|ip> [reason]", "gflbans");
 
-    RegConsoleCmd("sm_calladmin", CommandCallAdmin, "Call an admin to the server");
+    RegConsoleCmd("sm_calladmin", CommandCallAdmin, "sm_calladmin <reason> - Call an admin to the server");
     RegAdminCmd("sm_claim", CommandClaimCallAdmin, ADMFLAG_KICK, "Claim a calladmin call");
     RegAdminCmd("sm_caban", CommandBanCallAdmin, ADMFLAG_KICK, "CallAdmin Ban - sm_caban <target> <minutes|0> [reason]", "gflbans");
 }
@@ -71,10 +70,6 @@ public Action CommandBan(int client, int args) {
         GFLBans_ApplyPunishments(target_list[c], blocks, sizeof(blocks), time);
     }
 
-    return Plugin_Handled;
-}
-
-public Action CommandUnban(int client, int args) {
     return Plugin_Handled;
 }
 
