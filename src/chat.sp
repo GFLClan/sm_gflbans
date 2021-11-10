@@ -69,7 +69,7 @@ void c_print_to_chat_ex(int[] clients, int num_clients, const char[] msg) {
         Handle usr_msg = StartMessage("SayText2", clients, num_clients, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
         if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available && GetUserMessageType() == UM_Protobuf) {
             PbSetInt(usr_msg, "ent_idx", 0);
-            PbSetInt(usr_msg, "chat", true);
+            PbSetBool(usr_msg, "chat", true);
             PbSetString(usr_msg, "msg_name", msg);
             PbAddString(usr_msg, "params", "");
             PbAddString(usr_msg, "params", "");
