@@ -22,6 +22,7 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_ban", CommandBan, ADMFLAG_BAN, "sm_ban <target> <minutes|0> [reason]", "gflbans");
 
     RegConsoleCmd("sm_calladmin", CommandCallAdmin, "sm_calladmin <reason> - Call an admin to the server");
+    RegConsoleCmd("sm_report", CommandCallAdmin, "sm_report <reason> - Call an admin to the server");
     RegAdminCmd("sm_claim", CommandClaimCallAdmin, ADMFLAG_KICK, "Claim a calladmin call");
     RegAdminCmd("sm_caban", CommandBanCallAdmin, ADMFLAG_KICK, "CallAdmin Ban - sm_caban <target> <minutes|0> [reason]", "gflbans");
 }
