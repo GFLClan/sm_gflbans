@@ -1,0 +1,197 @@
+"Phrases"
+{
+    "Minutes"
+    {
+        "#format"   "{1:d}"
+        "da"        "for {1} minutter"
+    }
+    "Hours"
+    {
+        "#format"   "{1:d}"
+        "da"        "for {1} timer"
+    }
+    "Days"
+    {
+        "#format"   "{1:d}"
+        "da"        "for {1} dage"
+    }
+    "Weeks"
+    {
+        "#format"   "{1:d}"
+        "da"        "for {1} uger"
+    }
+    "Permanently"
+    {
+        "da"        "permanent"
+    }
+    
+    "Infraction Usage"
+    {
+        "#format"   "{1:s}"
+        "da"        "Brug: {1} <person<længde> [grund]"
+    }
+    "Usage CallAdmin"
+    {
+        "da"        "Brug: sm_calladmin <grund>"
+    }
+
+    "No PermBan Permissions'
+    {
+        "da"        "Du har ikke rettigheder til at udstede et permanent forbud."
+    }
+    "Player Using VPN"
+    {
+        "#format"   "{1:s}"
+        "da"        "{1} forbundet via en VPN."
+    }
+    
+    "You've been CallAdmin banned"
+    {
+        "da"        "Du er blevet udlukket fra at benytte !calladmin funktionen."
+    }
+    "You've been muted"
+    {
+        "da"        "Du er blevet udelukket fra at snakke."
+    }
+    "You've been gagged"
+    {
+        "da"        "Du er blevet gjort stum"
+    }
+    "You've been CallAdmin unbanned"
+    {
+        "da"        "Du kan nu benytte !calladmin funktionen igen."
+    }
+    "You've been unmuted"
+    {
+        "da"        "Du kan nu snakke igen."
+    }
+    "You've been ungagged"
+    {
+        "da"        "Du kan nu skrive chat beskeder igen."
+    }
+
+    "You're Banned"
+    {
+        "#format"   "{1:s}"
+        "da"        "Du er blevet banned, besøg {1} for mere information."
+    }
+    "You're CallAdmin banned"
+    {
+        "da"        "Du er udelukket fra at bruge !calladmin"
+    }
+
+
+    "Banned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} banned {2} {3}"
+    }
+    "VPN Kicked"
+    {
+        "da"       "Denne server tillader ikke VPN. Venligst deaktiver dit VPN og forsøg igen." 
+    }
+    "Warned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} gav en advarsel til{2} {3}"
+    }
+    "Muted"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} slukkede for {2} {3}"
+    }
+    "Gagged"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} gjorde stum {2} {3}"
+    }
+    "Silenced"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} gjorde tavs {2} {3}"
+    }
+    "CallAdmin Banned"
+    {
+        "#format"   "{1:s},{2:s},{3:s}"
+        "da"        "{1} udelukket {2} fra at bruge !calladmin {3}"
+    }
+    "Admin Called"
+    {
+        "da"        "En admin er blevet tilkaldt, venlist hav tålmodighed."
+    }
+    "Claimed CallAdmin"
+    {
+        "da"        "Du har gjort krav på denne rapport."
+    }
+
+    "Error calling admin"
+    {
+        "da"        "Der var en fejl i forsøget på at tilkalde en admin, du kan forsøge igen om et kort øjeblik."
+    }
+    "Error saving infraction"
+    {
+        "da"        "Der var en fejl i forsøget på at gemme overtrædelsen, straffen bliver formegentligt ikke gemt."
+    }
+    "Error removing infraction"
+    {
+        "da"        "Der var en fejl i forsøge på at fjerne en overtrælse, straffen vil formegentligt ikke være fjernet."
+    }
+    "Error claiming CallAdmin"
+    {
+        "da"        "Der var en fejl i forsøget på at gøre krav på admin kaldet, prøv igen om et kort øjeblik."
+    }
+    "CallAdmin Rate Limit"
+    {
+        "da"        "En admin blev for nyligt tilkaldt til denne server. Venligst vent før du forsøger igen.
+    }
+
+    // Admin menu
+    "Ban player"
+    {
+        "da"        "Ban spiller"
+    }
+    "Mute player"
+    {
+        "da"        "Gør spiller stum"
+    }
+    "Gag player"
+    {
+        "da"        "Gør spiller tavs"
+    }
+    "Silence player"
+    {
+        "da"        "Gør spiller døv"
+    }
+    "Warn player"
+    {
+        "da"        "Giv spiller advarsel"
+    }
+    "CallAdmin ban player"
+    {
+        "da"        "CA ban spiller"
+    }
+    "Punish player"
+    {
+        "da"        "Straf spiller"
+    }
+    "Target not found"
+    {
+        "da"        "Spiller ikke fundet"
+    }
+    "Unable to target"
+    {
+        "da"        "Det er ikke muligt at vælge denne spiller"
+    }
+    "Enter infraction reason"
+    {
+        "da"        "Skriv en grund for denne overtrædelse i chatten. Benyt !gbabort for at afbryde straffen."
+    }
+    "Player no longer available"
+    {
+        "da"        "Valgte spiller er ikke længere tilgængelig"
+    }
+    "Punishment aborted"
+    {
+        "da"        "Straf afbrudt"
+    }
+}
