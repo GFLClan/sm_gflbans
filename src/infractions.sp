@@ -17,7 +17,7 @@ enum struct PlayerInfractions {
     bool call_admin_banned;
 }
 
-PlayerInfractions player_infractions[MAXPLAYERS];
+PlayerInfractions player_infractions[MAXPLAYERS+1];
 
 bool GFLBans_CallAdminBanned(int client) {
     if (!GFLBans_ValidClient(client)) {

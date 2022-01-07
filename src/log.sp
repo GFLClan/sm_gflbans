@@ -11,7 +11,7 @@ LogLevel current_log_level = LogLevel_None;
 ConVar cvar_log_level;
 Cookie log_level_cookie;
 
-ClientLogState client_logs[MAXPLAYERS];
+ClientLogState client_logs[MAXPLAYERS+1];
 
 void GFLBans_InitLogging() {
     cvar_log_level = CreateConVar("gflbans_log_level", "info", "GFLBans logging level");
