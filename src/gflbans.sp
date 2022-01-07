@@ -94,6 +94,9 @@ public void OnClientAuthorized(int client, const char[] auth) {
 }
 
 public void OnClientPostAdminCheck(int client) {
+    if (!IsFakeClient(client)) {
+        GFLBansAPI_CheckClient(client);
+    }
     if (AreClientCookiesCached(client)) {
         OnClientCookiesCached(client);
     }

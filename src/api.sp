@@ -401,13 +401,16 @@ bool HandleCheckObj(int client, JSONObject check) {
             blocks[total_blocks] = block;
             total_blocks++;
 
-            GFLBans_ApplyPunishment(client, block, expires - GetTime());
+            // If we got here from OnClientAuthorized and they are not ingame yet, we only want to handle bans
+            if (IsClientInGame(client) || block == Block_Join)
+                GFLBans_ApplyPunishment(client, block, expires - GetTime());
         }
     }
     delete keys;
 
     if (total_blocks > 0) {
-        GFLBans_ClearOtherPunishments(client, blocks, total_blocks);
+        if (IsClientInGame(client))
+            GFLBans_ClearOtherPunishments(client, blocks, total_blocks);
         return true;
     } else {
         return false;
