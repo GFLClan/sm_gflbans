@@ -16,6 +16,9 @@ enum LogLevel {
     LogLevel_Debug
 }
 
+#if defined SPCOMP
+    #endinput
+#endif
 void GFLBans_InitLogging();
 void GFLBansLogs_OnConfigsLoaded();
 void GFLBansLogs_OnClientDisconnected(int client);

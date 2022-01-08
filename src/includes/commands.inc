@@ -3,6 +3,9 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+#if defined SPCOMP
+    #endinput
+#endif
 #if defined _gflbans_commands_include
     #endinput
 #endif

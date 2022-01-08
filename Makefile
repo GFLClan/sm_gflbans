@@ -3,7 +3,7 @@ INCLUDE := -i ../include -i include -i src -i sm-ripext/pawn/scripting/include
 SRCS := gflbans
 SRC_FILES := $(addprefix src/, $(addsuffix .sp, $(SRCS)))
 DEPS := 
-CC_FLAGS := 
+CC_FLAGS := SPCOMP=true
 TEST_FLAGS := -w203 -w204
 
 gflbans: $(SRC_FILES) $(DEPS)

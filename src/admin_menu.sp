@@ -30,7 +30,7 @@ public void OnAdminMenuReady(Handle admin_menu) {
     h_topmenu = topmenu;
 
     TopMenuObject player_commands = h_topmenu.FindCategory(ADMINMENU_PLAYERCOMMANDS);
-    if (player_commands != INVALID_HANDLE) {
+    if (player_commands != INVALID_TOPMENUOBJECT) {
         h_topmenu.AddItem("sm_ban", AdminMenu_Ban, player_commands, "sm_ban", ADMFLAG_BAN);
         h_topmenu.AddItem("sm_mute", AdminMenu_Mute, player_commands, "sm_mute", ADMFLAG_KICK);
         h_topmenu.AddItem("sm_gag", AdminMenu_Gag, player_commands, "sm_gag", ADMFLAG_KICK);
@@ -226,6 +226,8 @@ public int MenuHandler_PlayerList(Menu menu, MenuAction action, int param1, int 
             DisplayBanTimeMenu(param1);
         }
     }
+
+    return 0;
 }
 
 public int MenuHandler_TimeList(Menu menu, MenuAction action, int param1, int param2) {
@@ -242,4 +244,6 @@ public int MenuHandler_TimeList(Menu menu, MenuAction action, int param1, int pa
         playerinfo[param1].isWaitingForChatReason = true;
         GFLBansChat_NotifyAdmin(param1, "%t", "Enter infraction reason");
     }
+    
+    return 0;
 }

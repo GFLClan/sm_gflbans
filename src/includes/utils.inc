@@ -8,6 +8,9 @@
 #endif
 #define _gflbans_utils_include
 
+#if defined SPCOMP
+    #endinput
+#endif
 bool GFLBans_ValidClient(int client);
 void GFLBans_FormatDuration(int client, int duration, char[] buffer, int max_size);
 int GFLBans_GetClientBySteamID(const char[] steamid);
