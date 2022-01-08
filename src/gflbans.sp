@@ -12,6 +12,13 @@
 #include "includes/globals"
 #include "includes/api"
 #include "includes/log"
+#include "admin_menu.sp"
+#include "commands.sp"
+#include "infractions.sp"
+#include "api.sp"
+#include "log.sp"
+#include "utils.sp"
+#include "chat.sp"
 
 public Plugin myinfo = {
     name = "GFLBans",

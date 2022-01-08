@@ -211,4 +211,6 @@ Action Timer_ExpireInfraction(Handle timer, any data) {
 
     GFLBans_RemovePunishments(client, infractions, 1);
     player_infractions[client].infraction_timer[infraction] = INVALID_HANDLE;
+
+    return Plugin_Continue;
 }

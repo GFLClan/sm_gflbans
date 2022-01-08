@@ -212,6 +212,7 @@ void GFLBansAPI_ClaimCallAdmin(int client) {
 
 public Action Timer_Heartbeat(Handle timer) {
     GFLBansAPI_DoHeartbeat();
+    return Plugin_Continue;
 }
 
 void GFLBansAPI_DoHeartbeat() {

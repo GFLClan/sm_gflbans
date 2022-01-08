@@ -16,6 +16,11 @@ enum InfractionBlock {
     Block_AdminChat,
     Block_None
 }
+
+
+#if defined SPCOMP
+    #endinput
+#endif
 void GFLBans_ApplyPunishment(int client, InfractionBlock block, int duration);
 void GFLBans_RemovePunishment(int client, InfractionBlock block);
 void GFLBans_ApplyPunishments(int client, const InfractionBlock[] blocks, int total_blocks, int duration);
