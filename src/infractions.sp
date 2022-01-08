@@ -17,7 +17,7 @@ enum struct PlayerInfractions {
     bool call_admin_banned;
 }
 
-PlayerInfractions player_infractions[MAXPLAYERS];
+PlayerInfractions player_infractions[MAXPLAYERS+1];
 
 bool GFLBans_CallAdminBanned(int client) {
     if (!GFLBans_ValidClient(client)) {
@@ -174,6 +174,7 @@ void GFLBans_KillPunishmentTimers(int client) {
     for (int c = 0; c < max_blocks; c++) {
         if (player_infractions[client].infraction_timer[c] != INVALID_HANDLE) {
             KillTimer(player_infractions[client].infraction_timer[c], true);
+            player_infractions[client].infraction_timer[c] = INVALID_HANDLE;
         }
     }
 }

@@ -27,7 +27,7 @@ void GFLBans_RegisterCommands() {
 }
 
 public Action CommandWarn(int client, int args) {
-    int target_list[MAXPLAYERS];
+    int target_list[MAXPLAYERS+1];
     int target_count = -1;
     char reason[128];
     int time = 0;
@@ -50,7 +50,7 @@ public Action CommandAbort(int client, int args) {
 }
 
 public Action CommandBan(int client, int args) {
-    int target_list[MAXPLAYERS];
+    int target_list[MAXPLAYERS+1];
     int target_count = -1;
     char reason[128];
     int time = 0;
@@ -103,7 +103,7 @@ public Action CommandClaimCallAdmin(int client, int args) {
 }
 
 public Action CommandBanCallAdmin(int client, int args) {
-    int target_list[MAXPLAYERS];
+    int target_list[MAXPLAYERS+1];
     int target_count = -1;
     char reason[128];
     int time = 0;
@@ -140,7 +140,7 @@ bool GetCommandTargets(int client, const char[] target_string, int[] target_list
     return true;
 }
 
-bool ParseCommandArguments(const char[] command, int client, int target_list[MAXPLAYERS], int &target_count, char[] reason, int reason_max, int &time) {
+bool ParseCommandArguments(const char[] command, int client, int target_list[MAXPLAYERS+1], int &target_count, char[] reason, int reason_max, int &time) {
     if (GetCmdArgs() < 2) {
         ReplyToCommand(client, "%t", "Infraction Usage", command);
         return false;
@@ -152,7 +152,7 @@ bool ParseCommandArguments(const char[] command, int client, int target_list[MAX
     char target[65];
     int len = BreakString(arguments, target, sizeof(target));
 
-    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS, target_count)) {
+    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS+1, target_count)) {
         return false;
     }
 
@@ -175,7 +175,7 @@ Action HandleChatInfraction(const char[] command, int client, int admin_flags, c
         return Plugin_Continue;
     }
 
-    int target_list[MAXPLAYERS];
+    int target_list[MAXPLAYERS+1];
     int target_count = -1;
     char reason[128];
     int time = 0;
@@ -208,9 +208,9 @@ Action HandleRemoveChatInfraction(int client, int admin_flags, const InfractionB
     }
     Format(reason, sizeof(reason), arguments[len]);
 
-    int target_list[MAXPLAYERS];
+    int target_list[MAXPLAYERS+1];
     int target_count = -1;
-    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS, target_count)) {
+    if (!GetCommandTargets(client, target, target_list, MAXPLAYERS+1, target_count)) {
         return Plugin_Stop;
     }
 
