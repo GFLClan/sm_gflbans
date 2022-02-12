@@ -1,5 +1,7 @@
 CC := ../spcomp64
+ifeq ($(includePath),)
 includePath := ../include
+endif
 INCLUDE := -i $(includePath) -i include -i src -i sm-ripext/pawn/scripting/include
 SRCS := gflbans
 SRC_FILES := $(addprefix src/, $(addsuffix .sp, $(SRCS)))
