@@ -37,7 +37,7 @@ void GFLBansChat_NotifyAdmin(int client, const char[] format, any ...) {
     if (client == 0) {
         PrintToServer("[GFLBans] %s", buffer);
     } else {
-        c_print_to_chat(client, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+        c_print_to_chat(client, "{{BLUE}}[GFLBans] {{GRAY}}%s", buffer);
     }
 }
 
@@ -47,7 +47,7 @@ void GFLBansChat_NotifyAdmins(const char[] format, any ...) {
         if (GFLBans_ValidClient(c) && CheckCommandAccess(c, "", ADMFLAG_KICK, true)) {
             SetGlobalTransTarget(c);
             VFormat(buffer, sizeof(buffer), format, 2);
-            c_print_to_chat(c, "\x070260db[GFLBans] \x0702ccdb%s", buffer);
+            c_print_to_chat(c, "{{BLUE}}[GFLBans] {{GRAY}}%s", buffer);
         }
     }
 }
@@ -56,7 +56,7 @@ void GFLBansChat_Announce(int client, const char[] format, any ...) {
     char buffer[512];
     SetGlobalTransTarget(client);
     VFormat(buffer, sizeof(buffer), format, 3);
-    c_print_to_chat(client, "\x07f1faee[GFLBans] \x07a8dadc%s", buffer);
+    c_print_to_chat(client, "{{BLUE}}[GFLBans] {{GRAY}}%s", buffer);
 }
 
 void c_print_to_chat_ex(int[] clients, int num_clients, const char[] msg) {
@@ -90,6 +90,15 @@ void c_print_to_chat_ex(int[] clients, int num_clients, const char[] msg) {
 void c_print_to_chat(int client, const char[] msg, any ...) {
     char buffer[1024];
     VFormat(buffer, sizeof(buffer), msg, 3);
+
+    if (GetEngineVersion() == Engine_CSS) {
+        ReplaceString(buffer, sizeof(buffer), "{{BLUE}}", "\x070260db", true);
+        ReplaceString(buffer, sizeof(buffer), "{{GRAY}}", "\x07dbdbdb", true);
+    } else {
+        ReplaceString(buffer, sizeof(buffer), "{{BLUE}}", "\x0C", true);
+        ReplaceString(buffer, sizeof(buffer), "{{GRAY}}", "\x08", true);
+    }
+
     int clients[1];
     clients[0] = client;
 
