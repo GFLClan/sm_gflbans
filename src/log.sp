@@ -1,3 +1,6 @@
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sourcemod>
 #include <clientprefs>
 #include "includes/log"

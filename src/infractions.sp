@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sourcemod>
 #include <basecomm>
 #include "includes/infractions"
@@ -129,7 +132,7 @@ void GFLBans_ClearOtherPunishments(int client, const InfractionBlock[] blocks, i
     GFLBans_RemovePunishments(client, blocks_to_clear, total_blocks_to_clear);
 }
 
-void GFLBans_ClearPunishments(client) {
+void GFLBans_ClearPunishments(int client) {
     InfractionBlock blocks_to_clear[Block_None];
     int max_blocks = view_as<int>(Block_None);
     for (int c = 0; c < max_blocks; c++) {
