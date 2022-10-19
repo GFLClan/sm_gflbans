@@ -30,12 +30,8 @@
         "#format"   "{1:s}"
         "en"        "Usage: {1} <target> <duration> [reason]"
     }
-    "Usage CallAdmin"
-    {
-        "en"        "Usage: sm_calladmin <reason>"
-    }
 
-    "No PermBan Permissions'
+    "No PermBan Permissions"
     {
         "en"        "You do not have permission to issue permanent bans."
     }
@@ -79,8 +75,26 @@
     {
         "en"        "You are currently banned from using !calladmin"
     }
-
-
+    "No CallAdmin Targets"
+    {
+        "en"        "There are no players online to report"
+    }
+    "Select CallAdmin Target"
+    {
+        "en"        "Select a player to report"
+    }
+    "Select CallAdmin Reason"
+    {
+        "en"        "Select a reason"
+    }
+    "CallAdmin Confirm"
+    {
+        "en"        "Are you sure you want to call an admin? Abuse will be punished"
+    }
+    "CallAdmin Target Disconnected"
+    {
+        "en"        "This player has disconnected"
+    }
     "Banned"
     {
         "#format"   "{1:s},{2:s},{3:s}"
@@ -142,7 +156,8 @@
     }
     "CallAdmin Rate Limit"
     {
-        "en"        "An admin was called to this server recently. Please wait a while before trying again."
+        "#format"   "{1:i}"
+        "en"        "An admin was called to this server recently. Please wait {1} seconds before trying again."
     }
 
     // Admin menu

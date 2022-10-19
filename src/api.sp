@@ -25,8 +25,6 @@
 #include "includes/log"
 #include "includes/chat"
 
-int last_call_admin_time = 0;
-
 void GFLBansAPI_StartHeartbeatTimer() {
     CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);
 }
@@ -192,24 +190,28 @@ void GFLBansAPI_VPNCheckClient(int client) {
     req.Get(HTTPCallback_VPNCheck, client);
 }
 
-void GFLBansAPI_CallAdmin(int client, const char[] reason) {
-    if (GetTime() - last_call_admin_time < 600) {
-        GFLBansChat_Announce(client, "%t", "CallAdmin Rate Limit");
-        return;
-    }
-
+void GFLBansAPI_CallAdmin(int caller, int target, const char[] reason) {
     HTTPRequest req = Start_HTTPRequest("/api/v1/gs/calladmin");
     JSONObject body = new JSONObject();
-    JSONObject player_obj = GetPlayerObj(client, false);
-    char name[64];
-    GetClientName(client, name, sizeof(name));
-    body.Set("caller", player_obj);
-    body.SetString("caller_name", name);
+    JSONObject caller_player_obj = GetPlayerObj(caller, false);
+    JSONObject target_player_obj = GetPlayerObj(target, false);
+
+    char caller_name[64];
+    char target_name[64];
+    GetClientName(caller, caller_name, sizeof(caller_name));
+    GetClientName(target, target_name, sizeof(target_name));
+
+    body.Set("caller", caller_player_obj);
+    body.SetString("caller_name", caller_name);
     body.SetBool("include_other_servers", g_cvar_gflbans_global_bans.BoolValue);
     body.SetString("message", reason);
-    req.Post(body, HTTPCallback_CallAdmin, client);
+    body.SetInt("cooldown", g_cvar_gflbans_calladmin_cooldown.IntValue);
+    body.Set("report_target", target_player_obj);
+    body.SetString("report_target_name", target_name);
+    req.Post(body, HTTPCallback_CallAdmin, caller);
 
-    delete player_obj;
+    delete caller_player_obj;
+    delete target_player_obj;
     delete body;
 }
 
@@ -251,11 +253,22 @@ public void HTTPCallback_CallAdmin(HTTPResponse response, any data, const char[]
     int client = view_as<int>(data);
     int status = view_as<int>(response.Status);
     if (status == 200) {
-        last_call_admin_time = GetTime();
+        JSONObject json = view_as<JSONObject>(response.Data);
+        g_i_last_call_admin_time = GetTime();
+
         if (GFLBans_ValidClient(client)) {
-            GFLBansChat_Announce(client, "%t", "Admin Called");
+            if (json.GetBool("sent"))
+                GFLBansChat_Announce(client, "%t", "Admin Called");
+            else if (json.GetBool("is_banned"))
+                GFLBansChat_Announce(client, "%t", "You're CallAdmin banned");
+            else if (json.HasKey("cooldown"))
+                GFLBansChat_Announce(client, "%t", "CallAdmin Rate Limit", json.GetInt("cooldown"));
+            else
+                GFLBansChat_Announce(client, "%t", "Error calling admin");
         }
+
         GFLBans_LogInfo("GFLBansAPI - Admin called");
+        delete json;
     } else if (status != 200) {
         if (GFLBans_ValidClient(client)) {
             GFLBansChat_Announce(client, "%t", "Error calling admin");

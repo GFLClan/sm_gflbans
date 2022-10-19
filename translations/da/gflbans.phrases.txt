@@ -30,12 +30,8 @@
         "#format"   "{1:s}"
         "da"        "Brug: {1} <person<længde> [grund]"
     }
-    "Usage CallAdmin"
-    {
-        "da"        "Brug: sm_calladmin <grund>"
-    }
 
-    "No PermBan Permissions'
+    "No PermBan Permissions"
     {
         "da"        "Du har ikke rettigheder til at udstede et permanent forbud."
     }
@@ -140,10 +136,11 @@
     {
         "da"        "Der var en fejl i forsøget på at gøre krav på admin kaldet, prøv igen om et kort øjeblik."
     }
-    "CallAdmin Rate Limit"
-    {
-        "da"        "En admin blev for nyligt tilkaldt til denne server. Venligst vent før du forsøger igen.
-    }
+    //"CallAdmin Rate Limit"
+    //{
+        //"#format"   "{1:i}"
+        //"da"        "En admin blev for nyligt tilkaldt til denne server. Venligst vent før du forsøger igen."
+    //}
 
     // Admin menu
     "Ban player"

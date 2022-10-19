@@ -51,6 +51,7 @@ public void OnPluginStart() {
     g_cvar_gflbans_vpn_mode = CreateConVar("gflbans_vpn_mode", "kick", "kick|notify - Action to take when a VPN is detected");
     g_cvar_gflbans_vpn_mode.AddChangeHook(Cvar_VPNModeChanged);
     g_cvar_gflbans_allow_cloud_gaming = CreateConVar("gflbans_allow_cloud_gaming", "1", "Should cloud gaming IPs be allowed");
+    g_cvar_gflbans_calladmin_cooldown = CreateConVar("g_cvar_gflbans_calladmin_cooldown", "600", "Cooldown in seconds between CallAdmin requests");
 
     ConVar cvar_hostname = FindConVar("hostname");
     ConVar cvar_password = FindConVar("sv_password");
@@ -59,6 +60,7 @@ public void OnPluginStart() {
 
     CheckServerMod();
     CheckServerOS();
+    LoadCallAdminReasons();
     GFLBansAPI_StartHeartbeatTimer();
 
     LoadTranslations("common.phrases");
@@ -105,6 +107,11 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
     return GFLBansAM_OnClientSayCommand(client, args);
 }
 
+public void OnClientConnected(int client)
+{
+    g_i_calladmin_targets[client] = 0;
+}
+
 public void OnClientAuthorized(int client, const char[] auth) {
     if (!IsFakeClient(client)) {
         GFLBansAPI_CheckClient(client);
@@ -127,6 +134,7 @@ public void OnClientDisconnect(int client) {
         GFLBansLogs_OnClientDisconnected(client);
     }
     GFLBans_KillPunishmentTimers(client);
+    g_i_calladmin_targets[client] = 0;
 }
 
 public void OnClientCookiesCached(int client) {
@@ -181,4 +189,25 @@ void CheckServerOS() {
         }
         delete game_data;
     }
+}
+
+void LoadCallAdminReasons()
+{
+    char path[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, path, sizeof(path), "configs/calladmin_reasons.cfg");
+
+    File file = OpenFile(path, "r");
+    char buffer[121];
+    g_calladmin_reasons = new ArrayList(ByteCountToCells(121));
+
+    while (!file.EndOfFile())
+    {
+        file.ReadLine(buffer, sizeof(buffer));
+        ReplaceString(buffer, sizeof(buffer), "\r", "");
+        ReplaceString(buffer, sizeof(buffer), "\n", "");
+
+        g_calladmin_reasons.PushString(buffer);
+    }
+
+    delete file;
 }

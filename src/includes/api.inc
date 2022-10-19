@@ -33,4 +33,4 @@ void GFLBansAPI_StartHeartbeatTimer();
 void GFLBansAPI_DoHeartbeat();
 void GFLBansAPI_CheckClient(int client);
 void GFLBansAPI_VPNCheckClient(int client);
-void GFLBansAPI_CallAdmin(int client, const char[] reason);
+void GFLBansAPI_CallAdmin(int caller, int target, const char[] reason);

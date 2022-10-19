@@ -35,8 +35,8 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_warn", CommandWarn, ADMFLAG_KICK, "sm_warn <target> <minutes|0> [reason]", "gflbans");
     RegAdminCmd("sm_ban", CommandBan, ADMFLAG_BAN, "sm_ban <target> <minutes|0> [reason]", "gflbans");
 
-    RegConsoleCmd("sm_calladmin", CommandCallAdmin, "sm_calladmin <reason> - Call an admin to the server");
-    RegConsoleCmd("sm_report", CommandCallAdmin, "sm_report <reason> - Call an admin to the server");
+    RegConsoleCmd("sm_calladmin", CommandCallAdmin, "sm_calladmin - Call an admin to the server");
+    RegConsoleCmd("sm_report", CommandCallAdmin, "sm_report - Call an admin to the server");
     RegAdminCmd("sm_claim", CommandClaimCallAdmin, ADMFLAG_KICK, "Claim a calladmin call");
     RegAdminCmd("sm_caban", CommandBanCallAdmin, ADMFLAG_KICK, "CallAdmin Ban - sm_caban <target> <minutes|0> [reason]", "gflbans");
 }
@@ -89,23 +89,48 @@ public Action CommandBan(int client, int args) {
 }
 
 public Action CommandCallAdmin(int client, int args) {
-    if (!GFLBans_ValidClient(client)) {
+    if (!GFLBans_ValidClient(client))
         return Plugin_Handled;
-    }
 
-    if (args < 1) {
-        ReplyToCommand(client, "%t", "Usage CallAdmin");
-        return Plugin_Handled;
-    }
-
-    if (GFLBans_CallAdminBanned(client)) {
+    if (GFLBans_CallAdminBanned(client))
+    {
         ReplyToCommand(client, "%t", "You're CallAdmin banned");
         return Plugin_Handled;
     }
 
-    char reason[256];
-    GetCmdArgString(reason, sizeof(reason));
-    GFLBansAPI_CallAdmin(client, reason);
+    int remaining_cooldown = g_i_last_call_admin_time + g_cvar_gflbans_calladmin_cooldown.IntValue - GetTime();
+
+    if (remaining_cooldown > 0)
+    {
+        GFLBansChat_Announce(client, "%t", "CallAdmin Rate Limit", remaining_cooldown);
+        return Plugin_Handled;
+    }
+
+    Menu target_menu = new Menu(MenuHandler_CallAdminTarget);
+
+    for (int target = 1; target <= MaxClients; target++)
+    {
+        if (!GFLBans_ValidClient(target) || client == target)
+            continue;
+
+        char target_name[64];
+        GetClientName(target, target_name, sizeof(target_name));
+        char target_buffer[8];
+        IntToString(GetClientUserId(target), target_buffer, sizeof(target_buffer));
+
+        target_menu.AddItem(target_buffer, target_name);
+    }
+
+    if (target_menu.ItemCount == 0)
+    {
+        ReplyToCommand(client, "%t", "No CallAdmin Targets");
+    }
+    else
+    {
+        target_menu.SetTitle("%t", "Select CallAdmin Target");
+        target_menu.Display(client, MENU_TIME_FOREVER);
+    }
+
     return Plugin_Handled;
 }
 
@@ -134,6 +159,95 @@ public Action CommandBanCallAdmin(int client, int args) {
     }
 
     return Plugin_Handled;
+}
+
+public int MenuHandler_CallAdminTarget(Menu menu, MenuAction action, int param1, int param2)
+{
+    switch (action)
+    {
+        case MenuAction_Select:
+        {
+            char target_buffer[8];
+            menu.GetItem(param2, target_buffer, sizeof(target_buffer));
+            g_i_calladmin_targets[param1] = StringToInt(target_buffer);
+
+            Menu reason_menu = new Menu(MenuHandler_CallAdminReason);
+
+            for (int i = 0; i < g_calladmin_reasons.Length; i++)
+            {
+                char reason[121];
+                g_calladmin_reasons.GetString(i, reason, sizeof(reason));
+
+                reason_menu.AddItem(reason, reason);
+            }
+
+            reason_menu.SetTitle("%t", "Select CallAdmin Reason");
+            reason_menu.Display(param1, MENU_TIME_FOREVER);
+        }
+        case MenuAction_End:
+        {
+            delete menu;
+        }
+    }
+
+    return 0;
+}
+
+public int MenuHandler_CallAdminReason(Menu menu, MenuAction action, int param1, int param2)
+{
+    switch (action)
+    {
+        case MenuAction_Select:
+        {
+            char reason[121];
+            menu.GetItem(param2, reason, sizeof(reason));
+
+            Menu confirm_menu = new Menu(MenuHandler_CallAdminConfirm);
+
+            // no format param for translations?? revisit this..
+            confirm_menu.AddItem(reason, "Confirm");
+            confirm_menu.AddItem(reason, "Cancel");
+
+            confirm_menu.SetTitle("%t", "CallAdmin Confirm");
+            confirm_menu.Display(param1, MENU_TIME_FOREVER);
+        }
+        case MenuAction_End:
+        {
+            delete menu;
+        }
+    }
+
+    return 0;
+}
+
+public int MenuHandler_CallAdminConfirm(Menu menu, MenuAction action, int param1, int param2)
+{
+    switch (action)
+    {
+        case MenuAction_Select:
+        {
+            if (param2 != 0)
+                return 0;
+
+            int target = GetClientOfUserId(g_i_calladmin_targets[param1]);
+            char reason[121];
+            menu.GetItem(param2, reason, sizeof(reason));
+
+            if (!GFLBans_ValidClient(target))
+            {
+                PrintToChat(param1, "%t", "CallAdmin Target Disconnected");
+                return 0;
+            }
+
+            GFLBansAPI_CallAdmin(param1, target, reason);
+        }
+        case MenuAction_End:
+        {
+            delete menu;
+        }
+    }
+
+    return 0;
 }
 
 bool GetCommandTargets(int client, const char[] target_string, int[] target_list, int max_targets, int &target_count) {

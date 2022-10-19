@@ -36,6 +36,7 @@ ConVar g_cvar_gflbans_server_id;
 ConVar g_cvar_gflbans_server_key;
 ConVar g_cvar_gflbans_vpn_mode;
 ConVar g_cvar_gflbans_allow_cloud_gaming;
+ConVar g_cvar_gflbans_calladmin_cooldown;
 
 char g_s_server_os[32];
 char g_s_server_mod[12];
@@ -43,3 +44,7 @@ char g_s_server_hostname[128];
 char g_s_current_map[64];
 bool g_b_server_locked;
 VPNAction g_vpn_action;
+
+ArrayList g_calladmin_reasons;
+int g_i_last_call_admin_time = 0;
+int g_i_calladmin_targets[MAXPLAYERS + 1];
