@@ -14,7 +14,7 @@ jobs:
         SM_VERSION: ["1.11", "1.12"]
         
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
@@ -25,7 +25,7 @@ jobs:
         id: vars
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
-          echo "::set-output name=plugin_version::${{ matrix.SM_VERSION }}.$SHORT_SHA"
+          echo "plugin_version=${{ matrix.SM_VERSION }}.$SHORT_SHA" >> $GITHUB_OUTPUT
       - name: Compile 
         run: |
           make CC=spcomp64 gflbans
@@ -41,7 +41,7 @@ jobs:
           cp -r gamedata/ bundle/addons/sourcemod
           cp -r configs/ bundle/addons/sourcemod
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gflbans.${{ steps.vars.outputs.plugin_version }}
           path: ./bundle
