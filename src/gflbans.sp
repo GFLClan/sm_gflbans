@@ -104,12 +104,17 @@ public void OnConfigsExecuted() {
 }
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] args) {
-    return GFLBansAM_OnClientSayCommand(client, args);
+    // Hey! This is bad but there doesn't seem to be a better method of doing this, please verify returns are correct when updating code related to this!
+    if (GFLBansAM_OnClientSayCommand(client, args) == Plugin_Stop)
+        return Plugin_Stop;
+    else
+        return CallAdmin_OnClientSayCommand(client, args);
 }
 
 public void OnClientConnected(int client)
 {
     g_i_calladmin_targets[client] = 0;
+    g_b_calladmin_reason_listen[client] = false;
 }
 
 public void OnClientAuthorized(int client, const char[] auth) {
@@ -135,6 +140,7 @@ public void OnClientDisconnect(int client) {
     }
     GFLBans_KillPunishmentTimers(client);
     g_i_calladmin_targets[client] = 0;
+    g_b_calladmin_reason_listen[client] = false;
 }
 
 public void OnClientCookiesCached(int client) {

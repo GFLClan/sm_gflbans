@@ -48,3 +48,4 @@ VPNAction g_vpn_action;
 ArrayList g_calladmin_reasons;
 int g_i_last_call_admin_time = 0;
 int g_i_calladmin_targets[MAXPLAYERS + 1];
+bool g_b_calladmin_reason_listen[MAXPLAYERS + 1];

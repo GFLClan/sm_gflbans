@@ -20,7 +20,7 @@
 #include <sourcemod>
 
 bool GFLBans_ValidClient(int client) {
-    return client >= 1 && client <= MaxClients && IsClientConnected(client);
+    return client >= 1 && client <= MaxClients && IsClientConnected(client) && !IsFakeClient(client);
 }
 
 void GFLBans_FormatDuration(int client, int duration, char[] buffer, int max_size) {

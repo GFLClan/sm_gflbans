@@ -83,6 +83,18 @@
     {
         "en"        "Select a player to report"
     }
+    "CallAdmin Custom Reason"
+    {
+        "en"        "Custom reason"
+    }
+    "CallAdmin Custom Reason Message"
+    {
+        "en"        "Type your custom report reason in the chat window, or type \"cancel\" if you no longer want to send this report"
+    }
+    "CallAdmin Cancelled"
+    {
+        "en"        "Your report has been cancelled"
+    }
     "Select CallAdmin Reason"
     {
         "en"        "Select a reason"
@@ -90,6 +102,14 @@
     "CallAdmin Confirm"
     {
         "en"        "Are you sure you want to call an admin? Abuse will be punished"
+    }
+    "CallAdmin Confirm Yes"
+    {
+        "en"        "Yes"
+    }
+    "CallAdmin Confirm No"
+    {
+        "en"        "No"
     }
     "CallAdmin Target Disconnected"
     {

@@ -41,6 +41,20 @@ void GFLBans_RegisterCommands() {
     RegAdminCmd("sm_caban", CommandBanCallAdmin, ADMFLAG_KICK, "CallAdmin Ban - sm_caban <target> <minutes|0> [reason]", "gflbans");
 }
 
+Action CallAdmin_OnClientSayCommand(int client, const char[] args)
+{
+    if (!g_b_calladmin_reason_listen[client])
+        return Plugin_Continue;
+
+    if (StrEqual(args, "cancel", false))
+        PrintToChat(client, "%t", "CallAdmin Cancelled");
+    else
+        BuildMenu_CallAdminConfirm(client, args);
+
+    g_b_calladmin_reason_listen[client] = false;
+    return Plugin_Stop;
+}
+
 public Action CommandWarn(int client, int args) {
     int target_list[MAXPLAYERS+1];
     int target_count = -1;
@@ -173,6 +187,10 @@ public int MenuHandler_CallAdminTarget(Menu menu, MenuAction action, int param1,
 
             Menu reason_menu = new Menu(MenuHandler_CallAdminReason);
 
+            char custom_reason[64];
+            Format(custom_reason, sizeof(custom_reason), "%t", "CallAdmin Custom Reason");
+            reason_menu.AddItem("custom_reason", custom_reason);
+
             for (int i = 0; i < g_calladmin_reasons.Length; i++)
             {
                 char reason[121];
@@ -199,17 +217,17 @@ public int MenuHandler_CallAdminReason(Menu menu, MenuAction action, int param1,
     {
         case MenuAction_Select:
         {
-            char reason[121];
-            menu.GetItem(param2, reason, sizeof(reason));
-
-            Menu confirm_menu = new Menu(MenuHandler_CallAdminConfirm);
-
-            // no format param for translations?? revisit this..
-            confirm_menu.AddItem(reason, "Confirm");
-            confirm_menu.AddItem(reason, "Cancel");
-
-            confirm_menu.SetTitle("%t", "CallAdmin Confirm");
-            confirm_menu.Display(param1, MENU_TIME_FOREVER);
+            if (param2 == 0)
+            {
+                g_b_calladmin_reason_listen[param1] = true;
+                PrintToChat(param1, "%t", "CallAdmin Custom Reason Message");
+            }
+            else
+            {
+                char reason[121];
+                menu.GetItem(param2, reason, sizeof(reason));
+                BuildMenu_CallAdminConfirm(param1, reason);
+            }
         }
         case MenuAction_End:
         {
@@ -248,6 +266,23 @@ public int MenuHandler_CallAdminConfirm(Menu menu, MenuAction action, int param1
     }
 
     return 0;
+}
+
+void BuildMenu_CallAdminConfirm(int client, const char[] reason)
+{
+    Menu confirm_menu = new Menu(MenuHandler_CallAdminConfirm);
+
+    char yes[32];
+    char no[32];
+    Format(yes, sizeof(yes), "%t", "CallAdmin Confirm Yes");
+    Format(no, sizeof(no), "%t", "CallAdmin Confirm No");
+
+    confirm_menu.AddItem(reason, yes);
+    confirm_menu.AddItem(reason, no);
+
+    confirm_menu.SetTitle("%t", "CallAdmin Confirm");
+    confirm_menu.ExitButton = false;
+    confirm_menu.Display(client, MENU_TIME_FOREVER);
 }
 
 bool GetCommandTargets(int client, const char[] target_string, int[] target_list, int max_targets, int &target_count) {
