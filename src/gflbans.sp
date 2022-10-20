@@ -48,7 +48,7 @@ public void OnPluginStart() {
     g_cvar_gflbans_server_id = CreateConVar("gflbans_server_id", "", "ID for this server in GFL Bans", FCVAR_PROTECTED);
     g_cvar_gflbans_server_key = CreateConVar("gflbans_server_key", "", "Key for this server in GFL Bans", FCVAR_PROTECTED);
 
-    g_cvar_gflbans_vpn_mode = CreateConVar("gflbans_vpn_mode", "kick", "kick|notify - Action to take when a VPN is detected");
+    g_cvar_gflbans_vpn_mode = CreateConVar("gflbans_vpn_mode", "notify", "kick|notify - Action to take when a VPN is detected");
     g_cvar_gflbans_vpn_mode.AddChangeHook(Cvar_VPNModeChanged);
     g_cvar_gflbans_allow_cloud_gaming = CreateConVar("gflbans_allow_cloud_gaming", "1", "Should cloud gaming IPs be allowed");
     g_cvar_gflbans_calladmin_cooldown = CreateConVar("g_cvar_gflbans_calladmin_cooldown", "600", "Cooldown in seconds between CallAdmin requests");
