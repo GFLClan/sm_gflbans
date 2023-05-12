@@ -33,8 +33,6 @@ jobs:
         run: |
           mkdir -p bundle/addons/sourcemod/plugins
           cp compiled/*.smx bundle/addons/sourcemod/plugins
-          mkdir scripting
-          cp -r src/ scripting/gflbans
           cp -r test/ scripting/gflbans/test
           cp -r scripting/ bundle/addons/sourcemod
           cp -r translations/ bundle/addons/sourcemod

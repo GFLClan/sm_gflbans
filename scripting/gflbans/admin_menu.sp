@@ -1,13 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
 #include <adminmenu>
-#include "includes/chat"
-#include "includes/infractions"
-#include "includes/admin_menu"
-#include "includes/utils"
-
 
 // Most of this file is taken from how basebans handles the admin menu,
 // pretty much verbatim.
