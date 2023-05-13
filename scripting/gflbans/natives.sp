@@ -23,6 +23,12 @@ int CreateInfraction(Handle plugin, int numParams)
     char reason[281];
     GetNativeString(5, reason, sizeof(reason));
 
+    if (!GFLBans_ValidClient(client))
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index %i", client);
+        return 0;
+    }
+
     GFLBansChat_AnnounceAction(0, client, blocks, total_blocks, duration);
     GFLBansAPI_SaveInfraction(0, client, blocks, total_blocks, duration, reason);
     GFLBans_ApplyPunishments(client, blocks, total_blocks, duration);
@@ -40,6 +46,12 @@ int RemoveInfraction(Handle plugin, int numParams)
 
     char reason[281];
     GetNativeString(4, reason, sizeof(reason));
+
+    if (!GFLBans_ValidClient(client))
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index %i", client);
+        return 0;
+    }
 
     GFLBansAPI_RemoveInfraction(0, client, blocks, total_blocks, reason);
     GFLBans_RemovePunishments(client, blocks, total_blocks);

@@ -40,6 +40,8 @@ enum InfractionBlock
  * @param total_blocks	Number of punishment blocks to apply for the infraction.
  * @param duration		Duration of the infraction in minutes, 0 for permanent.
  * @param reason		Reason for the infraction.
+ *
+ * @error				If the client index is invalid.
  */
 native void GFLBans_CreateInfraction(int client, const InfractionBlock[] blocks, int total_blocks, int duration, const char[] reason = "Infraction created through natives");
 
@@ -50,6 +52,8 @@ native void GFLBans_CreateInfraction(int client, const InfractionBlock[] blocks,
  * @param blocks		Punishment blocks the infraction has.
  * @param total_blocks	Number of punishment blocks the infraction has.
  * @param reason		Reason for removing the infraction.
+ *
+ * @error				If the client index is invalid.
  */
 native void GFLBans_RemoveInfraction(int client, const InfractionBlock[] blocks, int total_blocks, const char[] reason = "Infraction removed through natives");
 
