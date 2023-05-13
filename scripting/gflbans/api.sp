@@ -17,13 +17,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
 #include <ripext>
-#include "includes/globals"
-#include "includes/utils"
-#include "includes/infractions"
-#include "includes/log"
-#include "includes/chat"
 
 void GFLBansAPI_StartHeartbeatTimer() {
     CreateTimer(30.0, Timer_Heartbeat, _, TIMER_REPEAT);

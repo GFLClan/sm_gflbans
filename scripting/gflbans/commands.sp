@@ -17,13 +17,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
-#include "includes/infractions"
-#include "includes/utils"
-#include "includes/api"
-#include "includes/chat"
-#include "includes/admin_menu"
-
 void GFLBans_RegisterCommands() {
     AddCommandListener(CommandListener_Gag, "sm_gag");
     AddCommandListener(CommandListener_Mute, "sm_mute");
@@ -58,7 +51,7 @@ Action CallAdmin_OnClientSayCommand(int client, const char[] args)
 public Action CommandWarn(int client, int args) {
     int target_list[MAXPLAYERS+1];
     int target_count = -1;
-    char reason[128];
+    char reason[281];
     int time = 0;
     if (!ParseCommandArguments("sm_warn", client, target_list, target_count, reason, sizeof(reason), time)) {
         return Plugin_Handled;
@@ -81,7 +74,7 @@ public Action CommandAbort(int client, int args) {
 public Action CommandBan(int client, int args) {
     int target_list[MAXPLAYERS+1];
     int target_count = -1;
-    char reason[128];
+    char reason[281];
     int time = 0;
     if (!ParseCommandArguments("sm_ban", client, target_list, target_count, reason, sizeof(reason), time)) {
         return Plugin_Handled;
@@ -159,7 +152,7 @@ public Action CommandClaimCallAdmin(int client, int args) {
 public Action CommandBanCallAdmin(int client, int args) {
     int target_list[MAXPLAYERS+1];
     int target_count = -1;
-    char reason[128];
+    char reason[281];
     int time = 0;
     if (!ParseCommandArguments("sm_caban", client, target_list, target_count, reason, sizeof(reason), time)) {
         return Plugin_Handled;
@@ -341,7 +334,7 @@ Action HandleChatInfraction(const char[] command, int client, int admin_flags, c
 
     int target_list[MAXPLAYERS+1];
     int target_count = -1;
-    char reason[128];
+    char reason[281];
     int time = 0;
     if (!ParseCommandArguments(command, client, target_list, target_count, reason, sizeof(reason), time)) {
         return Plugin_Stop;
@@ -364,7 +357,7 @@ Action HandleRemoveChatInfraction(int client, int admin_flags, const InfractionB
     char arguments[256];
     GetCmdArgString(arguments, sizeof(arguments));
 
-    char target[65], reason[128];
+    char target[65], reason[281];
     int len = BreakString(arguments, target, sizeof(target));
     if (len == -1) {
         len = 0;

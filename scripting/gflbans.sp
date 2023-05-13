@@ -18,27 +18,50 @@
 #pragma newdecls required
 
 #include <sourcemod>
-#include <adminmenu>
-#include <clientprefs>
-#include "includes/commands"
-#include "includes/globals"
-#include "includes/api"
-#include "includes/log"
-#include "admin_menu.sp"
-#include "commands.sp"
-#include "infractions.sp"
-#include "api.sp"
-#include "log.sp"
-#include "utils.sp"
-#include "chat.sp"
+#include <gflbans>
 
 public Plugin myinfo = {
     name = "GFLBans",
-    author = "Dreae",
+    author = "Dreae, Vauff",
     description = "SourceMod integration with GFL Bans",
     version = "0.0.1", 
-    url = "https://gitlab.gflclan.com/Dreae/sm_gflbans"
+    url = "https://github.com/GFLClan/sm_gflbans"
 }
+
+enum VPNAction
+{
+    VPNAction_Kick,
+    VPNAction_Notify
+}
+
+ConVar g_cvar_gflbans_website;
+ConVar g_cvar_gflbans_global_bans;
+ConVar g_cvar_gflbans_server_id;
+ConVar g_cvar_gflbans_server_key;
+ConVar g_cvar_gflbans_vpn_mode;
+ConVar g_cvar_gflbans_allow_cloud_gaming;
+ConVar g_cvar_gflbans_calladmin_cooldown;
+
+char g_s_server_os[32];
+char g_s_server_mod[12];
+char g_s_server_hostname[128];
+char g_s_current_map[64];
+bool g_b_server_locked;
+VPNAction g_vpn_action;
+
+ArrayList g_calladmin_reasons;
+int g_i_last_call_admin_time = 0;
+int g_i_calladmin_targets[MAXPLAYERS + 1];
+bool g_b_calladmin_reason_listen[MAXPLAYERS + 1];
+
+#include "gflbans/infractions.sp"
+#include "gflbans/admin_menu.sp"
+#include "gflbans/commands.sp"
+#include "gflbans/api.sp"
+#include "gflbans/log.sp"
+#include "gflbans/utils.sp"
+#include "gflbans/chat.sp"
+#include "gflbans/natives.sp"
 
 public void OnPluginStart() {
     GFLBans_RegisterCommands();

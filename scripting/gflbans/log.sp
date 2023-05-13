@@ -1,10 +1,16 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
 #include <clientprefs>
-#include "includes/log"
-#include "includes/utils"
+
+enum LogLevel
+{
+    LogLevel_None,
+    LogLevel_Error,
+    LogLevel_Warn,
+    LogLevel_Info,
+    LogLevel_Debug
+}
 
 enum struct ClientLogState {
     LogLevel log_level;

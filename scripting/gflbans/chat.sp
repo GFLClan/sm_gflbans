@@ -1,10 +1,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
-#include "includes/utils"
-#include "includes/chat"
-
 void GFLBansChat_AnnounceAction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration) {
     char admin[64], targ[64], s_duration[32], translation_str[12];
     GetClientName(client, admin, sizeof(admin));

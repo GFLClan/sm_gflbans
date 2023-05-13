@@ -17,8 +17,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
-
 bool GFLBans_ValidClient(int client) {
     return client >= 1 && client <= MaxClients && IsClientConnected(client) && !IsFakeClient(client);
 }

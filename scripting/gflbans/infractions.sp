@@ -17,13 +17,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include <sourcemod>
 #include <basecomm>
-#include "includes/infractions"
-#include "includes/utils"
-#include "includes/api"
-#include "includes/log"
-#include "includes/chat"
 
 enum struct PlayerInfractions {
     Handle infraction_timer[Block_None];
