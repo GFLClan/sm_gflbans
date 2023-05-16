@@ -3,8 +3,13 @@
 
 void GFLBansChat_AnnounceAction(int client, int target, const InfractionBlock[] blocks, int total_blocks, int duration) {
     char admin[64], targ[64], s_duration[32], translation_str[12];
-    GetClientName(client, admin, sizeof(admin));
     GetClientName(target, targ, sizeof(targ));
+
+    if (client == 0)
+        admin = "Console";
+    else
+        GetClientName(client, admin, sizeof(admin));
+
     for (int c = 1; c <= MaxClients; c++) {
         if (IsClientConnected(c) && !IsFakeClient(c)) {
             GFLBans_FormatDuration(c, duration, s_duration, sizeof(s_duration));
