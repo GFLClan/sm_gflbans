@@ -387,19 +387,21 @@ public void HTTPCallback_RemoveInfraction(HTTPResponse response, any data, const
 }
 
 void LogResponseError(const char[] action, HTTPResponse response, const char[] error) {
-        JSONObject data = view_as<JSONObject>(response.Data);
-        char detail[128];
-        detail[0] = '\0';
-        if (data.HasKey("detail")) {
-            data.GetString("detail", detail, sizeof(detail));
-        }
-        GFLBans_LogError(
-            "API Error %s;\n -> unexpected status code %d\n -> client error: %s\n -> detail: %s", 
-            action, 
-            response.Status, 
-            error, 
-            detail
-        );
+    // We can't always print the status code further below if the API returns invalid JSON and causes an exception
+    GFLBans_LogDebug("Status code %i beginning a LogResponseError call", response.Status);
+    JSONObject data = view_as<JSONObject>(response.Data);
+    char detail[128];
+    detail[0] = '\0';
+    if (data.HasKey("detail")) {
+        data.GetString("detail", detail, sizeof(detail));
+    }
+    GFLBans_LogError(
+        "API Error %s;\n -> unexpected status code %d\n -> client error: %s\n -> detail: %s", 
+        action, 
+        response.Status, 
+        error, 
+        detail
+    );
 }
 
 bool HandleCheckObj(int client, JSONObject check) {

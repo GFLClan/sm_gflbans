@@ -23,7 +23,7 @@ Cookie log_level_cookie;
 ClientLogState client_logs[MAXPLAYERS+1];
 
 void GFLBans_InitLogging() {
-    cvar_log_level = CreateConVar("gflbans_log_level", "info", "GFLBans logging level");
+    cvar_log_level = CreateConVar("gflbans_log_level", "info", "GFLBans logging level. Accepts error, warn, info or debug");
     cvar_log_level.AddChangeHook(Cvar_LogLevelChanged);
     RegAdminCmd("sm_gflbans_showlogs", CommandShowLogs, ADMFLAG_RCON);
     log_level_cookie = new Cookie("gflbans_log_level", "", CookieAccess_Private);
