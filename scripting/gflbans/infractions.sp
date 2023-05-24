@@ -197,7 +197,7 @@ void SetupExpirationTimer(int client, InfractionBlock block, int duration) {
         KillTimer(player_infractions[client].infraction_timer[block], true);
     }
     DataPack data = new DataPack();
-    data.WriteCell(client);
+    data.WriteCell(GetClientUserId(client));
     data.WriteCell(block);
     data.Reset();
     player_infractions[client].infraction_timer[block] = CreateTimer(float(duration * 60), Timer_ExpireInfraction, data, TIMER_DATA_HNDL_CLOSE);
@@ -212,8 +212,11 @@ void KillExpirationTimer(int client, InfractionBlock block) {
 
 Action Timer_ExpireInfraction(Handle timer, any data) {
     DataPack dp = view_as<DataPack>(data);
-    int client = dp.ReadCell();
+    int client = GetClientOfUserId(dp.ReadCell());
     InfractionBlock infraction = view_as<InfractionBlock>(dp.ReadCell());
+
+    if (client == 0)
+        return Plugin_Stop;
 
     InfractionBlock infractions[1];
     infractions[0] = infraction;
@@ -221,5 +224,5 @@ Action Timer_ExpireInfraction(Handle timer, any data) {
     GFLBans_RemovePunishments(client, infractions, 1);
     player_infractions[client].infraction_timer[infraction] = INVALID_HANDLE;
 
-    return Plugin_Continue;
+    return Plugin_Stop;
 }
